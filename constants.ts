@@ -444,48 +444,25 @@ const PG={
   img(iDom,d,orig){
     const p=document.createElement('div');p.className='page';p.id=\`page-content-\${d}\`;p.dataset.pd=d;p.dataset.oi=String(orig);
     const a=this.resolveAssetForPage(orig);
-    const hSlides=(C.U.horizontalSlides||{})[String(orig)];
-
-    if(hSlides&&hSlides.length>0){
-      const sc=document.createElement('div');sc.className='slider-container';
-      const mkSlide=(src,alt)=>{
-        const s=document.createElement('div');s.className='slider-item';
-        if(this.isVideoUrl(src)){
-          const v=document.createElement('video');Object.assign(v,{className:'page-video',src,muted:true,loop:true,playsInline:true,preload:'auto'});
-          s.appendChild(v);VM.addVideoListeners(v);
-        }else{
-          const m=document.createElement('img');m.className='page-image';m.loading='lazy';m.decoding='async';m.alt=alt||'';m.src=src;
-          s.appendChild(m);
-        }
-        return s;
-      };
-      // Main Slide
-      const mainSrc = a.src || C.U.fallbackImageUrl || '';
-      if(mainSrc) sc.appendChild(mkSlide(mainSrc, a.alt));
-
-      // Extra Slides
-      hSlides.forEach(src=>sc.appendChild(mkSlide(src,'')));
-
-      // Loop: Clone First Slide at the end
-      if(sc.children.length > 1){
-        const first = sc.children[0].cloneNode(true);
-        first.classList.add('clone-first');
-        // Prevent flicker by eager loading the clone
-        const img = first.querySelector('img');
-        if(img) img.loading = 'eager';
-        sc.appendChild(first);
-      }
-
-      p.appendChild(sc);
-    }else if(a.type==='video'){
+    const a=this.resolveAssetForPage(orig);
+    
+    let mainEl;
+    if(a.type==='video'){
       const v=document.createElement('video');Object.assign(v,{className:'page-video',src:a.src,muted:true,loop:true,playsInline:true,preload:'auto'});
-      v.addEventListener('error',()=>{if(C.U.fallbackImageUrl){const i=document.createElement('img');i.className='page-image';i.src=C.U.fallbackImageUrl;i.alt='代替画像';p.innerHTML='';p.appendChild(i)}});
-      p.appendChild(v);VM.addVideoListeners(v);
+      v.addEventListener('error',()=>{if(C.U.fallbackImageUrl){const i=document.createElement('img');i.className='page-image';i.src=C.U.fallbackImageUrl;i.alt='代替画像';
+        // If error happens inside slider, we need to replace v with i.
+        // But v is already inside slider. We can just replaceWith.
+        v.replaceWith(i);
+      }});
+      VM.addVideoListeners(v);
+      mainEl = v;
     }else{
       const m=document.createElement('img');m.className='page-image';m.loading='lazy';m.decoding='async';m.alt=a.alt;m.src=a.src||C.U.fallbackImageUrl||'';
       m.addEventListener('error',()=>{if(C.U.fallbackImageUrl && m.src!==C.U.fallbackImageUrl){m.src=C.U.fallbackImageUrl}});
-      p.appendChild(m);
+      mainEl = m;
     }
+
+    SL.wrapInSlider(p, d, orig, mainEl);
     if(S.cta.includes(orig)) this.cta(p,orig);
     return p;
   },
@@ -498,19 +475,27 @@ const PG={
   video(url,d,posStr){
     const p=document.createElement('div');p.className='page';p.id=\`page-content-\${d}\`;p.dataset.pd=d;p.dataset.oi=posStr||'';
     const v=document.createElement('video');Object.assign(v,{className:'page-video',src:url,muted:true,loop:true,playsInline:true,preload:'auto'});
-    v.addEventListener('error',()=>{if(C.U.fallbackImageUrl){const i=document.createElement('img');i.className='page-image';i.src=C.U.fallbackImageUrl;i.alt='代替画像';p.innerHTML='';p.appendChild(i)}});
-    p.appendChild(v);VM.addVideoListeners(v);return p;
+    v.addEventListener('error',()=>{if(C.U.fallbackImageUrl){const i=document.createElement('img');i.className='page-image';i.src=C.U.fallbackImageUrl;i.alt='代替画像';v.replaceWith(i)}});
+    VM.addVideoListeners(v);
+    SL.wrapInSlider(p, d, posStr, v);
+    return p;
   },
   iframe(url,d,posStr){
     const p=document.createElement('div');p.className='page html-content-page';p.id=\`page-content-\${d}\`;p.dataset.pd=d;p.dataset.oi=posStr||'';
-    p.innerHTML=\`<div class="html-content"><iframe src="\${url}" width="100%" frameborder="0" allowfullscreen loading="lazy" style="display:block;margin:0 auto;max-width:100%;min-height:50vh"></iframe></div>\`;
+    const wrapper = document.createElement('div'); wrapper.className = 'html-content';
+    wrapper.innerHTML=\`<iframe src="\${url}" width="100%" frameborder="0" allowfullscreen loading="lazy" style="display:block;margin:0 auto;max-width:100%;min-height:50vh"></iframe>\`;
+    SL.wrapInSlider(p, d, posStr, wrapper);
     EV.addScrollListener(p);return p;
   },
   html(c,d,posStr){
     const p=document.createElement('div');p.className='page html-content-page';p.id=\`page-content-\${d}\`;p.dataset.pd=d;p.dataset.oi=posStr||'';
     const rawHtml=typeof c==='string'?normalizeHTML(c):'';
     const sanitized=typeof DOMPurify!=='undefined'?DOMPurify.sanitize(rawHtml):rawHtml;
-    p.innerHTML=\`<div class="html-content">\${sanitized}</div>\`;
+    const rawHtml=typeof c==='string'?normalizeHTML(c):'';
+    const sanitized=typeof DOMPurify!=='undefined'?DOMPurify.sanitize(rawHtml):rawHtml;
+    const wrapper = document.createElement('div'); wrapper.className = 'html-content';
+    wrapper.innerHTML=sanitized;
+    SL.wrapInSlider(p, d, posStr, wrapper);
     p.querySelectorAll('video').forEach(v=>{v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';VM.addVideoListeners(v)});
     EV.addScrollListener(p);return p;
   },
@@ -676,24 +661,95 @@ const SL={
         if(sc.scrollLeft!==before){e.preventDefault();e.stopPropagation()}
       },{passive:false});
 
+      // PC Mouse Drag Support
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+      sc.addEventListener('mousedown', (e) => {
+        isDown = true;
+        sc.classList.add('active'); // Optional: for cursor style
+        startX = e.pageX - sc.offsetLeft;
+        scrollLeft = sc.scrollLeft;
+        e.preventDefault(); // Prevent text selection
+      });
+      sc.addEventListener('mouseleave', () => { isDown = false; sc.classList.remove('active'); });
+      sc.addEventListener('mouseup', () => { isDown = false; sc.classList.remove('active'); });
+      sc.addEventListener('mousemove', (e) => {
+        if(!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - sc.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll-fast
+        sc.scrollLeft = scrollLeft - walk;
+      });
+
       // Looping Logic
       const clone = sc.querySelector('.clone-first');
       if(clone){
         const observer = new IntersectionObserver((entries)=>{
           entries.forEach(entry=>{
             if(entry.isIntersecting && entry.intersectionRatio >= 0.99){
-              // Jump to start instantly
-              // We rely on the clone being identical to the first slide.
-              // Removing scrollSnapType caused flicker, so we just jump.
               sc.style.scrollBehavior = 'auto';
               sc.scrollLeft = 0;
               requestAnimationFrame(()=>{ sc.style.scrollBehavior = ''; });
             }
           });
-        }, { root: sc, threshold: 1.0 }); // Strict threshold to ensure full alignment
+        }, { root: sc, threshold: 1.0 });
         observer.observe(clone);
       }
     });
+  },
+  wrapInSlider(p, d, posStr, mainContentEl){
+    const hSlides = (C.U.horizontalSlides||{})[String(posStr||d)];
+    if(!hSlides || hSlides.length === 0){
+      p.appendChild(mainContentEl);
+      return;
+    }
+    const sc = document.createElement('div'); sc.className = 'slider-container';
+    const mkSlide = (src, alt) => {
+      const s = document.createElement('div'); s.className = 'slider-item';
+      if(C.U.isVideoUrl && C.U.isVideoUrl(src)){ // Assuming isVideoUrl is available via C.U or this context
+         // But isVideoUrl is in 'this' context of 'constants' object, not SL.
+         // We need access to isVideoUrl. It's defined in the main object.
+         // Let's assume we can access it via a helper or duplicate it.
+         // Actually, 'this' in SL is SL.
+         // We can use a simple regex here.
+         const isVid = /\\.(mp4|webm|ogg|mov|m4v)(\\?|#|$)/i.test(src);
+         if(isVid){
+           const v=document.createElement('video');Object.assign(v,{className:'page-video',src,muted:true,loop:true,playsInline:true,preload:'auto'});
+           s.appendChild(v);VM.addVideoListeners(v);
+         }else{
+           const m=document.createElement('img');m.className='page-image';m.loading='lazy';m.decoding='async';m.alt=alt||'';m.src=src;
+           s.appendChild(m);
+         }
+      } else {
+         const m=document.createElement('img');m.className='page-image';m.loading='lazy';m.decoding='async';m.alt=alt||'';m.src=src;
+         s.appendChild(m);
+      }
+      return s;
+    };
+
+    // Main Slide
+    const s1 = document.createElement('div'); s1.className = 'slider-item';
+    s1.appendChild(mainContentEl);
+    sc.appendChild(s1);
+
+    // Extra Slides
+    hSlides.forEach(src => sc.appendChild(mkSlide(src, '')));
+
+    // Loop: Clone First Slide
+    if(sc.children.length > 1){
+      const first = sc.children[0].cloneNode(true);
+      first.classList.add('clone-first');
+      const img = first.querySelector('img');
+      if(img) img.loading = 'eager';
+      // If video, we might need to re-attach listeners or mute it?
+      // CloneNode copies attributes but not event listeners.
+      // VM.addVideoListeners needs to be called on cloned video.
+      const v = first.querySelector('video');
+      if(v) { v.muted=true; VM.addVideoListeners(v); }
+      sc.appendChild(first);
+    }
+    p.appendChild(sc);
   }
 };
 
@@ -802,7 +858,14 @@ const EV={
   swipe(){
     const c=document.querySelector('.container');const w=document.querySelector('.swipe-lp-wrapper');let sY=null,sX=null,d='none';
     c.addEventListener('touchstart',e=>{sY=e.touches[0].clientY;sX=e.touches[0].clientX;d='none'},{passive:true});
-    c.addEventListener('touchmove',e=>{if(!sY||d!=='none'||S.anim)return;const cY=e.touches[0].clientY,cX=e.touches[0].clientX;const dY=Math.abs(sY-cY),dX=Math.abs(sX-cX);
+    c.addEventListener('touchmove',e=>{
+      // Aggressive Lock Check: If we are already locked, prevent default immediately
+      if(d==='slider_lock'){
+        if(e.cancelable) e.preventDefault();
+        return;
+      }
+
+      if(!sY||d!=='none'||S.anim)return;const cY=e.touches[0].clientY,cX=e.touches[0].clientX;const dY=Math.abs(sY-cY),dX=Math.abs(sX-cX);
       if(dX>5||dY>5){
         // Strict Vertical Swipe: Vertical movement must be significantly larger than horizontal to trigger page nav
         // This prevents accidental vertical swipes when trying to swipe horizontally
@@ -816,9 +879,10 @@ const EV={
         else d='none'; // Horizontal swipe with Omni OFF -> Ignore
         
         if(d==='h')w?.classList.add('horizontal-mode');else w?.classList.remove('horizontal-mode');
+        
+        // If we just locked, prevent default now
+        if(d==='slider_lock' && e.cancelable) e.preventDefault();
       }
-      // If locked in slider mode, prevent native vertical scroll
-      if(d==='slider_lock' && e.cancelable) e.preventDefault();
     },{passive:false});
     c.addEventListener('touchend',e=>{
       if(S.anim||sY===null)return;const cY=e.changedTouches[0].clientY;const cX=e.changedTouches[0].clientX;const dY=sY-cY;const dX=sX-cX;sY=null;sX=null;
