@@ -604,6 +604,7 @@ const ExtraFeatures: React.FC<{
   handleHorizontalSlideBlur: (index: number, field: keyof Omit<HorizontalSlide, 'id'>) => (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   addHorizontalSlide: () => void;
   removeHorizontalSlide: (index: number) => void;
+  mode: LpMode;
 }> = ({
   data,
   handleDataChange,
@@ -611,27 +612,32 @@ const ExtraFeatures: React.FC<{
   handleHtmlInsertionChange, handleHtmlInsertionBlur, addHtmlInsertion, removeHtmlInsertion,
   handleVideoInsertionChange, handleVideoInsertionBlur, addVideoInsertion, removeVideoInsertion,
   handleIframeInsertionChange, handleIframeInsertionBlur, addIframeInsertion, removeIframeInsertion,
-  handleHorizontalSlideChange, handleHorizontalSlideBlur, addHorizontalSlide, removeHorizontalSlide
+  handleHorizontalSlideChange, handleHorizontalSlideBlur, addHorizontalSlide, removeHorizontalSlide,
+  mode
 }) => (
     <div className="space-y-6">
-      <RadioToggle label="横スワイプ対応 (縦横無尽)" options={[{ label: 'しない', value: false }, { label: 'する', value: true }]} value={data.enable_horizontal_swipe} onChange={v => handleDataChange('enable_horizontal_swipe', v)}>
-        <p className="text-sm text-slate-600 mb-2">有効にすると、縦スワイプに加えて横スワイプでもページ送りが可能になります。</p>
-      </RadioToggle>
+      {mode === LpMode.FULL_CUSTOM && (
+        <>
+          <RadioToggle label="横スワイプ対応 (縦横無尽)" options={[{ label: 'しない', value: false }, { label: 'する', value: true }]} value={data.enable_horizontal_swipe} onChange={v => handleDataChange('enable_horizontal_swipe', v)}>
+            <p className="text-sm text-slate-600 mb-2">有効にすると、縦スワイプに加えて横スワイプでもページ送りが可能になります。</p>
+          </RadioToggle>
 
-      <RadioToggle label="横スクロールコンテンツ (Horizontal Slides)" options={[{ label: 'しない', value: false }, { label: 'する', value: true }]} value={data.feature_horizontal_slides} onChange={v => handleDataChange('feature_horizontal_slides', v)}>
-        <p className="text-sm text-slate-600 mb-2">特定のページ内に横スクロールで閲覧できる画像を追加します。</p>
-        {data.horizontal_slides.map((item, index) => (
-          <div key={item.id} className="p-4 border border-slate-200 rounded-lg space-y-3 relative bg-slate-50/50 mb-4">
-            <div className="flex justify-between items-center">
-              <h4 className="text-sm font-semibold text-slate-700">スライドグループ {index + 1}</h4>
-              {data.horizontal_slides.length > 1 && <button onClick={() => removeHorizontalSlide(index)} className="text-slate-400 hover:text-red-600 p-1 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>}
-            </div>
-            <TextInput label="対象ページ番号" placeholder="例: 2" value={item.targetPage} onChange={e => handleHorizontalSlideChange(index, 'targetPage', e.target.value)} onBlur={handleHorizontalSlideBlur(index, 'targetPage')} required />
-            <TextareaInput label="スライド画像URL (1行に1つ)" placeholder="https://...\nhttps://..." value={item.slides} onChange={e => handleHorizontalSlideChange(index, 'slides', e.target.value)} onBlur={handleHorizontalSlideBlur(index, 'slides')} rows={4} required />
-          </div>
-        ))}
-        <AddItemButton onClick={addHorizontalSlide} text="スライドグループを追加" />
-      </RadioToggle>
+          <RadioToggle label="横スクロールコンテンツ (Horizontal Slides)" options={[{ label: 'しない', value: false }, { label: 'する', value: true }]} value={data.feature_horizontal_slides} onChange={v => handleDataChange('feature_horizontal_slides', v)}>
+            <p className="text-sm text-slate-600 mb-2">特定のページ内に横スクロールで閲覧できる画像を追加します。</p>
+            {data.horizontal_slides.map((item, index) => (
+              <div key={item.id} className="p-4 border border-slate-200 rounded-lg space-y-3 relative bg-slate-50/50 mb-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-sm font-semibold text-slate-700">スライドグループ {index + 1}</h4>
+                  {data.horizontal_slides.length > 1 && <button onClick={() => removeHorizontalSlide(index)} className="text-slate-400 hover:text-red-600 p-1 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>}
+                </div>
+                <TextInput label="対象ページ番号" placeholder="例: 2" value={item.targetPage} onChange={e => handleHorizontalSlideChange(index, 'targetPage', e.target.value)} onBlur={handleHorizontalSlideBlur(index, 'targetPage')} required />
+                <TextareaInput label="スライド画像URL (1行に1つ)" placeholder="https://...\nhttps://..." value={item.slides} onChange={e => handleHorizontalSlideChange(index, 'slides', e.target.value)} onBlur={handleHorizontalSlideBlur(index, 'slides')} rows={4} required />
+              </div>
+            ))}
+            <AddItemButton onClick={addHorizontalSlide} text="スライドグループを追加" />
+          </RadioToggle>
+        </>
+      )}
 
       <RadioToggle label="HTMLの挿入" options={[{ label: 'しない', value: false }, { label: 'する', value: true }]} value={data.feature_html_insert} onChange={v => handleDataChange('feature_html_insert', v)}>
         {data.html_insertions.map((item, index) => (
@@ -1355,6 +1361,11 @@ const App: React.FC = () => {
               handleIframeInsertionBlur={handleIframeInsertionBlur}
               addIframeInsertion={addIframeInsertion}
               removeIframeInsertion={removeIframeInsertion}
+              handleHorizontalSlideChange={handleHorizontalSlideChange}
+              handleHorizontalSlideBlur={handleHorizontalSlideBlur}
+              addHorizontalSlide={addHorizontalSlide}
+              removeHorizontalSlide={removeHorizontalSlide}
+              mode={mode}
             />
           </div>
         )}
@@ -1407,6 +1418,11 @@ const App: React.FC = () => {
                   handleIframeInsertionBlur={handleIframeInsertionBlur}
                   addIframeInsertion={addIframeInsertion}
                   removeIframeInsertion={removeIframeInsertion}
+                  handleHorizontalSlideChange={handleHorizontalSlideChange}
+                  handleHorizontalSlideBlur={handleHorizontalSlideBlur}
+                  addHorizontalSlide={addHorizontalSlide}
+                  removeHorizontalSlide={removeHorizontalSlide}
+                  mode={mode}
                 />
               </div>
             )}
