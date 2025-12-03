@@ -625,12 +625,8 @@ const ExtraFeatures: React.FC<{
     <div className="space-y-6">
       {mode === LpMode.FULL_CUSTOM && (
         <>
-          <RadioToggle label="横スワイプ対応 (縦横無尽)" options={[{ label: 'しない', value: false }, { label: 'する', value: true }]} value={data.enable_horizontal_swipe} onChange={v => handleDataChange('enable_horizontal_swipe', v)}>
-            <p className="text-sm text-slate-600 mb-2">有効にすると、縦スワイプに加えて横スワイプでもページ送りが可能になります。</p>
-          </RadioToggle>
-
-          <RadioToggle label="横スクロールコンテンツ (Horizontal Slides)" options={[{ label: 'しない', value: false }, { label: 'する', value: true }]} value={data.feature_horizontal_slides} onChange={v => handleDataChange('feature_horizontal_slides', v)}>
-            <p className="text-sm text-slate-600 mb-2">特定のページ内に横スクロールで閲覧できる画像を追加します。</p>
+          <RadioToggle label="横スワイプコンテンツ" options={[{ label: 'しない', value: false }, { label: 'する', value: true }]} value={data.feature_horizontal_slides} onChange={v => handleDataChange('feature_horizontal_slides', v)}>
+            <p className="text-sm text-slate-600 mb-2">特定のページ内に横スワイプで閲覧できる画像を追加します。</p>
             {data.horizontal_slides.map((item, index) => (
               <div key={item.id} className="p-4 border border-slate-200 rounded-lg space-y-3 relative bg-slate-50/50 mb-4">
                 <div className="flex justify-between items-center">
