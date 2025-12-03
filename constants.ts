@@ -470,6 +470,9 @@ const PG={
       if(sc.children.length > 1){
         const first = sc.children[0].cloneNode(true);
         first.classList.add('clone-first');
+        // Prevent flicker by eager loading the clone
+        const img = first.querySelector('img');
+        if(img) img.loading = 'eager';
         sc.appendChild(first);
       }
 
@@ -811,7 +814,8 @@ const EV={
         if(dY > dX * 4) d='v'; 
         else if(C.U.enableHorizontalSwipe){
           // Conflict Resolution: If inside slider, ignore horizontal swipe for page nav
-          if(e.target.closest('.slider-container')) d='none'; 
+          // AND LOCK it to prevent accidental vertical swipe re-evaluation
+          if(e.target.closest('.slider-container')) d='slider_lock'; 
           else d='h';
         }
         else d='none'; // Horizontal swipe with Omni OFF -> Ignore
