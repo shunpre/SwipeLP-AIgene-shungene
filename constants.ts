@@ -460,7 +460,9 @@ const PG={
         return s;
       };
       // Main Slide
-      sc.appendChild(mkSlide(a.src||C.U.fallbackImageUrl||'',a.alt));
+      const mainSrc = a.src || C.U.fallbackImageUrl || '';
+      if(mainSrc) sc.appendChild(mkSlide(mainSrc, a.alt));
+
       // Extra Slides
       hSlides.forEach(src=>sc.appendChild(mkSlide(src,'')));
       p.appendChild(sc);
@@ -769,13 +771,13 @@ const EV={
     c.addEventListener('touchstart',e=>{sY=e.touches[0].clientY;sX=e.touches[0].clientX;d='none'},{passive:true});
     c.addEventListener('touchmove',e=>{if(!sY||d!=='none'||S.anim)return;const cY=e.touches[0].clientY,cX=e.touches[0].clientX;const dY=Math.abs(sY-cY),dX=Math.abs(sX-cX);
       if(dX>5||dY>5){
-        if(dY>dX)d='v';
+        if(dY>dX)d='v'; // Vertical swipe always triggers vertical nav (even inside slider)
         else if(C.U.enableHorizontalSwipe){
           // Conflict Resolution: If inside slider, ignore horizontal swipe for page nav
           if(e.target.closest('.slider-container')) d='none'; 
           else d='h';
         }
-        else d='none'; // Horizontal swipe with Omni OFF -> Ignore (allow native scroll or do nothing)
+        else d='none'; // Horizontal swipe with Omni OFF -> Ignore
         
         if(d==='h')w?.classList.add('horizontal-mode');else w?.classList.remove('horizontal-mode');
       }
