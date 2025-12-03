@@ -775,7 +775,8 @@ const EV={
           if(e.target.closest('.slider-container')) d='none'; 
           else d='h';
         }
-        else d='v';
+        else d='none'; // Horizontal swipe with Omni OFF -> Ignore (allow native scroll or do nothing)
+        
         if(d==='h')w?.classList.add('horizontal-mode');else w?.classList.remove('horizontal-mode');
       }
     },{passive:true});
