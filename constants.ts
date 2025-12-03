@@ -386,11 +386,27 @@ const PG={
       Object.assign(v,{className:'page-video',id:'firstContent',src:renderSrc,muted:true,loop:true,playsInline:true,preload:'auto'});
       v.dataset.fv='1';
       v.addEventListener('error',()=>{const fb=C.U.firstImageUrl||C.U.fallbackImageUrl;setImage(fb,'メイン画像(代替)')});
-      p.appendChild(v);VM.addVideoListeners(v);
+      VM.addVideoListeners(v);
+      
+      const orig = preFvUsed ? String(S.preFvKey) : '1';
+      p.dataset.oi = orig;
+      SL.wrapInSlider(p, d, orig, v);
+      
       const f=document.createElement('div');f.className='video-fallback-play';p.appendChild(f);
-    } else { setImage(renderSrc, renderAlt); }
+    } else { 
+      // setImage logic inlined/modified to use wrapInSlider
+      const i=document.createElement('img');
+      Object.assign(i,{className:'page-image',id:'firstContent',src:renderSrc,loading:'eager',decoding:'async',alt:renderAlt});
+      i.addEventListener('error',()=>{if(C.U.fallbackImageUrl&&i.src!==C.U.fallbackImageUrl){i.src=C.U.fallbackImageUrl}});
+      p.innerHTML='';
+      
+      const orig = preFvUsed ? String(S.preFvKey) : '1';
+      p.dataset.oi = orig;
+      SL.wrapInSlider(p, d, orig, i);
+    }
 
-    p.dataset.oi = preFvUsed ? String(S.preFvKey) : '1';
+    // p.dataset.oi is already set in the block above
+
 
     const ctaKey = preFvUsed ? parseFloat(S.preFvKey) : 1;
     if (S.cta.includes(ctaKey)) this.cta(p, ctaKey);
@@ -444,7 +460,6 @@ const PG={
   img(iDom,d,orig){
     const p=document.createElement('div');p.className='page';p.id=\`page-content-\${d}\`;p.dataset.pd=d;p.dataset.oi=String(orig);
     const a=this.resolveAssetForPage(orig);
-    const a=this.resolveAssetForPage(orig);
     
     let mainEl;
     if(a.type==='video'){
@@ -489,8 +504,6 @@ const PG={
   },
   html(c,d,posStr){
     const p=document.createElement('div');p.className='page html-content-page';p.id=\`page-content-\${d}\`;p.dataset.pd=d;p.dataset.oi=posStr||'';
-    const rawHtml=typeof c==='string'?normalizeHTML(c):'';
-    const sanitized=typeof DOMPurify!=='undefined'?DOMPurify.sanitize(rawHtml):rawHtml;
     const rawHtml=typeof c==='string'?normalizeHTML(c):'';
     const sanitized=typeof DOMPurify!=='undefined'?DOMPurify.sanitize(rawHtml):rawHtml;
     const wrapper = document.createElement('div'); wrapper.className = 'html-content';
