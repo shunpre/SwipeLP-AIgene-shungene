@@ -171,22 +171,45 @@ html,body{
 
 
 /* ===== ここから横スライダー用の最小追記だけ ===== */
-.slider-container{
-  display:flex;
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  scroll-snap-type:x mandatory;
-  width:100%;height:100%;
-  z-index: 10; /* Ensure it sits above other page elements */
-}
-.slider-item{
-  flex:0 0 100%;
-  width:100%;height:100%;
-  scroll-snap-align:start;
-  scroll-snap-stop:always; /* Strong snap */
-  position:relative;
-  display:flex;justify-content:center;align-items:center;
-}
+  /* スライダーコンテナ：横スクロール有効化、縦スクロールはブラウザに任せる(pan-x) */
+  .slider-container{
+    display:flex;width:100%;height:100%;overflow-x:scroll;overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none; /* Firefox */
+    -ms-overflow-style:none; /* IE/Edge */
+    touch-action: pan-x; /* 縦スクロールはブラウザ標準、横はJS制御(しないが、pan-xで明示) */
+    z-index: 10; /* Ensure it sits above other page elements */
+  }
+  .slider-container::-webkit-scrollbar{display:none}
+  .slider-item{
+    flex:0 0 100%;width:100%;height:100%;scroll-snap-align:start;
+    position:relative; /* 子要素の配置用 */
+    display:flex;justify-content:center;align-items:center;
+  }
+
+  /* ページネーションドット（進行表示） */
+  .slider-dots {
+    position: absolute;
+    bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+    pointer-events: none; /* ドット自体は操作不可 */
+  }
+  .slider-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transition: background 0.3s ease;
+  }
+  .slider-dot.active {
+    background: #fff;
+    transform: scale(1.2);
+  }
+
 .slider-item .page-image, .slider-item .page-video{
   width:100%;height:100%;object-fit:contain;
 }

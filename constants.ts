@@ -872,9 +872,8 @@ const EV={
     const c=document.querySelector('.container');const w=document.querySelector('.swipe-lp-wrapper');let sY=null,sX=null,d='none';
     c.addEventListener('touchstart',e=>{sY=e.touches[0].clientY;sX=e.touches[0].clientX;d='none'},{passive:true});
     c.addEventListener('touchmove',e=>{
-      // Aggressive Lock Check: If we are already locked, prevent default immediately
+      // Aggressive Lock Check: If we are already locked, just return (let browser handle horizontal scroll)
       if(d==='slider_lock'){
-        if(e.cancelable) e.preventDefault();
         return;
       }
 
@@ -901,8 +900,8 @@ const EV={
         
         if(d==='h')w?.classList.add('horizontal-mode');else w?.classList.remove('horizontal-mode');
         
-        // If we just locked, prevent default now
-        if(d==='slider_lock' && e.cancelable) e.preventDefault();
+        // If we just locked, NO preventDefault. Let browser handle pan-x.
+        // if(d==='slider_lock' && e.cancelable) e.preventDefault();
       }
     },{passive:false});
     c.addEventListener('touchend',e=>{
