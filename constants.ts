@@ -679,11 +679,17 @@ const SL={
         const observer = new IntersectionObserver((entries)=>{
           entries.forEach(entry=>{
             if(entry.isIntersecting && entry.intersectionRatio >= 0.9){
-              // Jump to start instantly
+              // Jump to start instantly without snap animation to prevent flicker
+              sc.style.scrollSnapType = 'none';
               sc.style.scrollBehavior = 'auto';
               sc.scrollLeft = 0;
-              // Restore smooth scroll after a tick (if needed, though CSS handles snap)
-              requestAnimationFrame(()=>{ sc.style.scrollBehavior = ''; });
+              // Restore snap after a tick
+              requestAnimationFrame(()=>{
+                requestAnimationFrame(()=>{
+                  sc.style.scrollSnapType = '';
+                  sc.style.scrollBehavior = '';
+                });
+              });
             }
           });
         }, { root: sc, threshold: 0.95 }); // High threshold to ensure it's fully snapped
@@ -802,7 +808,7 @@ const EV={
       if(dX>5||dY>5){
         // Strict Vertical Swipe: Vertical movement must be significantly larger than horizontal to trigger page nav
         // This prevents accidental vertical swipes when trying to swipe horizontally
-        if(dY > dX * 2.5) d='v'; 
+        if(dY > dX * 4) d='v'; 
         else if(C.U.enableHorizontalSwipe){
           // Conflict Resolution: If inside slider, ignore horizontal swipe for page nav
           if(e.target.closest('.slider-container')) d='none'; 
