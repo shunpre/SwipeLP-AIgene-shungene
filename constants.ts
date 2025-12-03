@@ -881,19 +881,23 @@ const EV={
       if(!sY||d!=='none'||S.anim)return;const cY=e.touches[0].clientY,cX=e.touches[0].clientX;const dY=Math.abs(sY-cY),dX=Math.abs(sX-cX);
       if(dX>10||dY>10){
         // Strict Vertical Swipe Logic
-        // Inside slider: Vertical movement must be > 6x Horizontal (Very Strict)
+        // Inside slider: Vertical movement must be > 1x Horizontal (45 degrees)
         // Outside slider: Vertical movement must be > 3x Horizontal (Standard)
         const isSlider = !!e.target.closest('.slider-container');
-        const vTh = isSlider ? 6 : 3;
+        const vTh = isSlider ? 1.0 : 3;
 
-        if(dY > dX * vTh) d='v'; 
-        else if(C.U.enableHorizontalSwipe){
-          // Conflict Resolution: If inside slider, ignore horizontal swipe for page nav
-          // AND LOCK it to prevent accidental vertical swipe re-evaluation
-          if(isSlider) d='slider_lock'; 
-          else d='h';
+        if(dY > dX * vTh) {
+          d='v'; 
+        } else {
+          // Horizontal or Lock
+          if(isSlider) {
+            d='slider_lock';
+          } else if(C.U.enableHorizontalSwipe) {
+            d='h';
+          } else {
+            d='none';
+          }
         }
-        else d='none'; // Horizontal swipe with Omni OFF -> Ignore
         
         if(d==='h')w?.classList.add('horizontal-mode');else w?.classList.remove('horizontal-mode');
         
