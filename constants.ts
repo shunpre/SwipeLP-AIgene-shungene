@@ -720,20 +720,9 @@ const SL={
     const sc = document.createElement('div'); sc.className = 'slider-container';
     const mkSlide = (src, alt) => {
       const s = document.createElement('div'); s.className = 'slider-item';
-      if(C.U.isVideoUrl && C.U.isVideoUrl(src)){ // Assuming isVideoUrl is available via C.U or this context
-         // But isVideoUrl is in 'this' context of 'constants' object, not SL.
-         // We need access to isVideoUrl. It's defined in the main object.
-         // Let's assume we can access it via a helper or duplicate it.
-         // Actually, 'this' in SL is SL.
-         // We can use a simple regex here.
-         const isVid = /\\.(mp4|webm|ogg|mov|m4v)(\\?|#|$)/i.test(src);
-         if(isVid){
-           const v=document.createElement('video');Object.assign(v,{className:'page-video',src,muted:true,loop:true,playsInline:true,preload:'auto'});
-           s.appendChild(v);VM.addVideoListeners(v);
-         }else{
-           const m=document.createElement('img');m.className='page-image';m.loading='lazy';m.decoding='async';m.alt=alt||'';m.src=src;
-           s.appendChild(m);
-         }
+      if(PG.isVideoUrl(src)){
+         const v=document.createElement('video');Object.assign(v,{className:'page-video',src,muted:true,loop:true,playsInline:true,preload:'auto'});
+         s.appendChild(v);VM.addVideoListeners(v);
       } else {
          const m=document.createElement('img');m.className='page-image';m.loading='lazy';m.decoding='async';m.alt=alt||'';m.src=src;
          s.appendChild(m);

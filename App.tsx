@@ -183,6 +183,7 @@ html,body{
   .slider-container::-webkit-scrollbar{display:none}
   .slider-item{
     flex:0 0 100%;width:100%;height:100%;scroll-snap-align:start;
+    scroll-snap-stop:always; /* Prevent skipping slides */
     position:relative; /* 子要素の配置用 */
     display:flex;justify-content:center;align-items:center;
   }
@@ -203,6 +204,7 @@ html,body{
     height: 8px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.5); /* Ensure visibility on light backgrounds */
     transition: background 0.3s ease;
   }
   .slider-dot.active {
