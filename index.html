@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>スワイプLP AIジェネレーター 瞬ジェネ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+<style>
+  /* This is a placeholder for styles that might be added to the generated HTML */
+</style>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-slate-50">
+    <div id="root"></div>
+    
+    <!-- NOTE: The following modal structure is NOT for the generator UI. -->
+    <!-- It's a template for the *generated* LP's HTML output. -->
+    <!-- The slp-form-bridge.js requires these elements to exist in the final HTML. -->
+    <template id="form-modal-template">
+        <div id="formModal" class="exit-popup-overlay" hidden>
+          <div class="legal-modal-container" role="dialog" aria-modal="true" aria-labelledby="formModalTitle">
+            <h3 id="formModalTitle" class="visually-hidden">フォーム</h3>
+            <button id="closeFormModal" class="exit-popup-close" aria-label="フォームを閉じる">×</button>
+            <div class="legal-modal-content" style="padding:0;border:0;">
+              <iframe id="formIframe" style="width:100%;height:80vh;border:0;"></iframe>
+              <a id="formOpenNew" target="_blank" rel="noopener" style="display:block;text-align:center;padding:10px;font-size:14px;">または新しいタブで開く</a>
+            </div>
+          </div>
+        </div>
+    </template>
+    
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

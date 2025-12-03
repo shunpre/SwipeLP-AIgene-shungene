@@ -1,0 +1,5 @@
+{
+  "name": "スワイプLP AIジェネレーター 瞬ジェネ",
+  "description": "An interactive web application to configure and generate HTML and GTM JSON files for swipe-based landing pages based on a detailed prompt-driven scenario.",
+  "requestFramePermissions": []
+}
