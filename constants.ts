@@ -465,6 +465,14 @@ const PG={
 
       // Extra Slides
       hSlides.forEach(src=>sc.appendChild(mkSlide(src,'')));
+
+      // Loop: Clone First Slide at the end
+      if(sc.children.length > 1){
+        const first = sc.children[0].cloneNode(true);
+        first.classList.add('clone-first');
+        sc.appendChild(first);
+      }
+
       p.appendChild(sc);
     }else if(a.type==='video'){
       const v=document.createElement('video');Object.assign(v,{className:'page-video',src:a.src,muted:true,loop:true,playsInline:true,preload:'auto'});
@@ -652,16 +660,37 @@ const BN={
 
 const SL={
   init(){this.bind();try{this.mo=new MutationObserver(m=>{if(m.some(x=>x.addedNodes&&x.addedNodes.length))this.bind()});this.mo.observe(document.body,{childList:true,subtree:true})}catch(_){ }},
-  bind(){document.querySelectorAll('.slider-container').forEach(sc=>{
-    if(sc.dataset.slBound)return;sc.dataset.slBound='1';
-    sc.addEventListener('wheel',e=>{
-      if(e.ctrlKey)return;
-      const max=sc.scrollWidth-sc.clientWidth;if(max<=1)return;
-      const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(!delta)return;
-      const before=sc.scrollLeft;sc.scrollLeft+=delta;
-      if(sc.scrollLeft!==before){e.preventDefault();e.stopPropagation()}
-    },{passive:false})
-  })}
+  bind(){
+    document.querySelectorAll('.slider-container').forEach(sc=>{
+      if(sc.dataset.slBound)return;sc.dataset.slBound='1';
+      
+      // Wheel support
+      sc.addEventListener('wheel',e=>{
+        if(e.ctrlKey)return;
+        const max=sc.scrollWidth-sc.clientWidth;if(max<=1)return;
+        const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(!delta)return;
+        const before=sc.scrollLeft;sc.scrollLeft+=delta;
+        if(sc.scrollLeft!==before){e.preventDefault();e.stopPropagation()}
+      },{passive:false});
+
+      // Looping Logic
+      const clone = sc.querySelector('.clone-first');
+      if(clone){
+        const observer = new IntersectionObserver((entries)=>{
+          entries.forEach(entry=>{
+            if(entry.isIntersecting && entry.intersectionRatio >= 0.9){
+              // Jump to start instantly
+              sc.style.scrollBehavior = 'auto';
+              sc.scrollLeft = 0;
+              // Restore smooth scroll after a tick (if needed, though CSS handles snap)
+              requestAnimationFrame(()=>{ sc.style.scrollBehavior = ''; });
+            }
+          });
+        }, { root: sc, threshold: 0.95 }); // High threshold to ensure it's fully snapped
+        observer.observe(clone);
+      }
+    });
+  }
 };
 
 const NAV={
@@ -771,7 +800,9 @@ const EV={
     c.addEventListener('touchstart',e=>{sY=e.touches[0].clientY;sX=e.touches[0].clientX;d='none'},{passive:true});
     c.addEventListener('touchmove',e=>{if(!sY||d!=='none'||S.anim)return;const cY=e.touches[0].clientY,cX=e.touches[0].clientX;const dY=Math.abs(sY-cY),dX=Math.abs(sX-cX);
       if(dX>5||dY>5){
-        if(dY>dX)d='v'; // Vertical swipe always triggers vertical nav (even inside slider)
+        // Strict Vertical Swipe: Vertical movement must be significantly larger than horizontal to trigger page nav
+        // This prevents accidental vertical swipes when trying to swipe horizontally
+        if(dY > dX * 2.5) d='v'; 
         else if(C.U.enableHorizontalSwipe){
           // Conflict Resolution: If inside slider, ignore horizontal swipe for page nav
           if(e.target.closest('.slider-container')) d='none'; 

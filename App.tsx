@@ -177,11 +177,18 @@ html,body{
   -webkit-overflow-scrolling:touch;
   scroll-snap-type:x mandatory;
   width:100%;height:100%;
+  z-index: 10; /* Ensure it sits above other page elements */
 }
-.slider-container > *{
-  flex:0 0 auto;
+.slider-item{
+  flex:0 0 100%;
+  width:100%;height:100%;
   scroll-snap-align:start;
-  width:100%;height:100%;position:relative;
+  scroll-snap-stop:always; /* Strong snap */
+  position:relative;
+  display:flex;justify-content:center;align-items:center;
+}
+.slider-item .page-image, .slider-item .page-video{
+  width:100%;height:100%;object-fit:contain;
 }
 /* 中央でスナップしたい要素に .slider-snap-center を付与する用途（任意） */
 .slider-snap-center{ scroll-snap-align:center; }
