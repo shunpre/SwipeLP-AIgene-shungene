@@ -681,21 +681,16 @@ const SL={
       if(clone){
         const observer = new IntersectionObserver((entries)=>{
           entries.forEach(entry=>{
-            if(entry.isIntersecting && entry.intersectionRatio >= 0.9){
-              // Jump to start instantly without snap animation to prevent flicker
-              sc.style.scrollSnapType = 'none';
+            if(entry.isIntersecting && entry.intersectionRatio >= 0.99){
+              // Jump to start instantly
+              // We rely on the clone being identical to the first slide.
+              // Removing scrollSnapType caused flicker, so we just jump.
               sc.style.scrollBehavior = 'auto';
               sc.scrollLeft = 0;
-              // Restore snap after a tick
-              requestAnimationFrame(()=>{
-                requestAnimationFrame(()=>{
-                  sc.style.scrollSnapType = '';
-                  sc.style.scrollBehavior = '';
-                });
-              });
+              requestAnimationFrame(()=>{ sc.style.scrollBehavior = ''; });
             }
           });
-        }, { root: sc, threshold: 0.95 }); // High threshold to ensure it's fully snapped
+        }, { root: sc, threshold: 1.0 }); // Strict threshold to ensure full alignment
         observer.observe(clone);
       }
     });
@@ -822,7 +817,9 @@ const EV={
         
         if(d==='h')w?.classList.add('horizontal-mode');else w?.classList.remove('horizontal-mode');
       }
-    },{passive:true});
+      // If locked in slider mode, prevent native vertical scroll
+      if(d==='slider_lock' && e.cancelable) e.preventDefault();
+    },{passive:false});
     c.addEventListener('touchend',e=>{
       if(S.anim||sY===null)return;const cY=e.changedTouches[0].clientY;const cX=e.changedTouches[0].clientX;const dY=sY-cY;const dX=sX-cX;sY=null;sX=null;
       if(d==='v'||d==='none'){
