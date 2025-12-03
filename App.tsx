@@ -196,8 +196,11 @@ html,body{
     transform: translateX(-50%);
     display: flex;
     gap: 8px;
-    z-index: 10;
+    z-index: 20;
     pointer-events: none; /* ドット自体は操作不可 */
+    background: rgba(0,0,0,0.3); /* Ensure contrast */
+    padding: 4px 8px;
+    border-radius: 12px;
   }
   .slider-dot {
     width: 8px;

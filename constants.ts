@@ -752,6 +752,37 @@ const SL={
       sc.appendChild(first);
     }
     p.appendChild(sc);
+
+    // Pagination Dots
+    if(hSlides.length > 0){
+      const dots = document.createElement('div'); dots.className = 'slider-dots';
+      // Total slides = Main(1) + Extra(hSlides.length). 
+      // Note: We don't count the clone for dots.
+      const total = 1 + hSlides.length;
+      for(let i=0; i<total; i++){
+        const dot = document.createElement('div');
+        dot.className = 'slider-dot' + (i===0 ? ' active' : '');
+        dots.appendChild(dot);
+      }
+      p.appendChild(dots);
+
+      // Scroll Listener for Dots
+      sc.addEventListener('scroll', () => {
+        const w = sc.clientWidth;
+        if(!w) return;
+        // Calculate index based on scroll position
+        // Round to nearest integer to find current slide
+        let idx = Math.round(sc.scrollLeft / w);
+        // Handle Loop (Clone)
+        if(idx >= total) idx = 0; 
+        
+        // Update dots
+        Array.from(dots.children).forEach((d, i) => {
+          if(i === idx) d.classList.add('active');
+          else d.classList.remove('active');
+        });
+      }, {passive: true});
+    }
   }
 };
 
