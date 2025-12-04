@@ -187,10 +187,10 @@ html,body{
     box-shadow: none;
   }
   
-  /* Disabled State: Visibly Grayed Out */
+  /* Disabled State: Only dim the icon, KEEP BACKGROUND SAME */
   .pc-nav-button.disabled {
-    color: #555 !important; /* Dark gray arrow */
-    background: #2a2a2a !important; /* Slightly lighter background to show it exists but is inactive */
+    color: rgba(255, 255, 255, 0.1) !important; /* Very dim icon */
+    background: #333 !important; /* SAME as active/center to look like one solid shape */
     pointer-events: none;
     cursor: default;
   }
@@ -228,8 +228,8 @@ html,body{
 
   /* Horizontal Buttons: Default Disabled (Grayed out) unless active */
   .pc-nav-horizontal .pc-nav-button {
-    color: #555;
-    background: #2a2a2a;
+    color: rgba(255, 255, 255, 0.1);
+    background: #333;
     pointer-events: none;
   }
   
@@ -241,8 +241,8 @@ html,body{
   }
   /* Specific disabled override for horizontal buttons even in cross-mode */
   .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button.disabled {
-    color: #555 !important;
-    background: #2a2a2a !important;
+    color: rgba(255, 255, 255, 0.1) !important;
+    background: #333 !important;
     pointer-events: none;
   }
   
