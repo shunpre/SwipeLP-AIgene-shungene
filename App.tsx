@@ -150,7 +150,7 @@ html,body{
     width: 35px; /* 30% smaller (50px * 0.7 = 35px) */
     height: 35px;
     border-radius: 50%;
-    background: rgba(0,0,0,0.6); /* Original semi-transparent */
+    background: rgba(59, 130, 246, 0.9); /* Progress bar blue */
     color: #fff;
     border: none;
     font-size: 18px; /* Smaller arrow */
@@ -161,7 +161,7 @@ html,body{
     transition: background 0.3s;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
   }
-  .pc-nav-button:hover{ background: rgba(0,0,0,0.8); }
+  .pc-nav-button:hover{ background: rgba(37, 99, 235, 1); }
   
   .pc-nav-horizontal{
     display: flex; /* Always visible */
