@@ -49,6 +49,7 @@ export const HTML_TEMPLATE = `<!DOCTYPE html>
 
     <div class="pc-nav">
       <button class="pc-nav-button prev-button" aria-label="前のページへ">▲</button>
+      <div class="pc-nav-center"></div>
       <div class="pc-nav-horizontal">
         <button class="pc-nav-button left-button" aria-label="左へ">◀</button>
         <button class="pc-nav-button right-button" aria-label="右へ">▶</button>
@@ -758,21 +759,23 @@ const SL={
     // Extra Slides
     hSlides.forEach(src => sc.appendChild(mkSlide(src, '')));
 
-    // Loop: Clone First Slide REMOVED for Strict Linear Nav
-    /*
+    // Loop: Clone First Slide
     if(sc.children.length > 1){
       const first = sc.children[0].cloneNode(true);
       first.classList.add('clone-first');
-      // ...
+      const img = first.querySelector('img');
+      if(img) img.loading = 'eager';
+      const v = first.querySelector('video');
+      if(v) { v.muted=true; VM.addVideoListeners(v); }
       sc.appendChild(first);
     }
-    */
     p.appendChild(sc);
 
     // Pagination Dots
     if(hSlides.length > 0){
       const dots = document.createElement('div'); dots.className = 'slider-dots';
       // Total slides = Main(1) + Extra(hSlides.length). 
+      // Note: We don't count the clone for dots.
       const total = 1 + hSlides.length;
       for(let i=0; i<total; i++){
         const dot = document.createElement('div');
@@ -786,7 +789,10 @@ const SL={
         const w = sc.clientWidth;
         if(!w) return;
         // Calculate index based on scroll position
+        // Round to nearest integer to find current slide
         let idx = Math.round(sc.scrollLeft / w);
+        // Handle Loop (Clone)
+        if(idx >= total) idx = 0; 
         
         // Update dots
         Array.from(dots.children).forEach((d, i) => {
@@ -1015,21 +1021,31 @@ const EV={
          const total = sc.children.length;
          
          // Strict Check: Prevent navigation if disabled
+         // Left: Block if at start (No backward loop)
          if(dir === -1 && cur <= 0) return;
-         if(dir === 1 && cur >= total - 1) return;
+         // Right: Allow loop (Infinite forward)
 
          let next=cur+dir;
          
-         // Handle Loop seamlessly (Only if not strict linear)
-         // User requested strict left rule: "P1 start... P1 to 1.3 (Left) is not allowed"
-         // This implies NO LOOPING for left.
-         // And likely NO LOOPING for right if we want consistent "gray out" behavior.
-         // So we implement strict linear navigation here.
-         
-         if(next < 0) next = 0;
-         if(next >= total) next = total - 1;
-         
-         sc.children[next].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
+         // Handle Loop seamlessly
+         if(dir === 1){
+           // Forward
+           if(cur >= total - 1){
+             // We are at clone (or past it). Snap to 0, then scroll to 1.
+             sc.children[0].scrollIntoView({behavior: 'auto', block: 'nearest', inline: 'start'});
+             requestAnimationFrame(()=>{
+               sc.children[1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
+             });
+           } else {
+             // Normal forward
+             sc.children[cur + 1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
+           }
+         } else {
+           // Backward (Strict Linear - No Loop)
+           if(cur > 0){
+             sc.children[cur - 1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
+           }
+         }
       }
     }
   },
@@ -1042,13 +1058,14 @@ const EV={
     if(sc && lBtn && rBtn){
       const w=sc.clientWidth;
       const cur=Math.round(sc.scrollLeft/w);
-      const total=sc.children.length;
+      // const total=sc.children.length; // Not needed for right button if infinite loop
       
+      // Left: Disabled at start
       if(cur <= 0) lBtn.classList.add('disabled');
       else lBtn.classList.remove('disabled');
       
-      if(cur >= total - 1) rBtn.classList.add('disabled');
-      else rBtn.classList.remove('disabled');
+      // Right: Always enabled (Infinite loop)
+      rBtn.classList.remove('disabled');
     }
   },
   handleBtn(dir){

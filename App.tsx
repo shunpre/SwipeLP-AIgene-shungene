@@ -152,16 +152,14 @@ html,body{
     z-index: 1000; /* Ensure on top */
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); /* Shadow for the whole shape */
   }
-  /* Center Filler */
-  .pc-nav::before {
-    content: "";
+  /* Center Filler (Real Element) */
+  .pc-nav-center {
     grid-column: 2;
     grid-row: 2;
     background: #333; /* Darker gray */
-    z-index: 0;
-    display: block;
     width: 100%;
     height: 100%;
+    z-index: 0;
   }
 
   .pc-nav-button{
