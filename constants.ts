@@ -719,13 +719,13 @@ const SL={
       if(clone){
         const observer = new IntersectionObserver((entries)=>{
           entries.forEach(entry=>{
-            if(entry.isIntersecting && entry.intersectionRatio >= 0.99){
+            if(entry.isIntersecting && entry.intersectionRatio >= 0.9){
               sc.style.scrollBehavior = 'auto';
               sc.scrollLeft = 0;
               requestAnimationFrame(()=>{ sc.style.scrollBehavior = ''; });
             }
           });
-        }, { root: sc, threshold: 1.0 });
+        }, { root: sc, threshold: [0.9, 1.0] });
         observer.observe(clone);
       }
     });
@@ -1001,25 +1001,38 @@ const EV={
          const cur=Math.round(sc.scrollLeft/w);
          let next=cur+dir;
          
-         // Loop Logic
          const total = Math.round(sc.scrollWidth / w); // Includes clone
          
-         // Forward Loop: If we go past last real slide (to clone), let it scroll.
-         // The IntersectionObserver in SL.bind will detect the clone and jump to 0.
-         // So we DON'T reset to 0 here.
-         
-         // Backward Loop: If we go before 0
-         if(next < 0) {
-           // We don't have a start-clone, so we can't smooth scroll backward past 0.
-           // We have to jump to the end.
-           // Last real slide is total - 2 (since total-1 is clone).
-           next = total - 2;
+         // Handle Loop seamlessly
+         if(dir === 1){
+           // Forward
+           if(cur >= total - 1){
+             // We are at clone (or past it). Snap to 0, then scroll to 1.
+             sc.scrollTo({left: 0, behavior: 'auto'});
+             // Need a small delay or just next frame to scroll to 1?
+             // scrollTo is async-ish but sequential calls might override.
+             // Let's try immediate.
+             requestAnimationFrame(()=>{
+               sc.scrollTo({left: w, behavior: 'smooth'});
+             });
+           } else {
+             // Normal forward (including to clone)
+             sc.scrollTo({left: (cur + 1) * w, behavior: 'smooth'});
+           }
+         } else {
+           // Backward
+           if(cur <= 0){
+             // We are at 0. Snap to clone, then scroll to second-to-last.
+             const cloneIdx = total - 1;
+             sc.scrollTo({left: cloneIdx * w, behavior: 'auto'});
+             requestAnimationFrame(()=>{
+               sc.scrollTo({left: (cloneIdx - 1) * w, behavior: 'smooth'});
+             });
+           } else {
+             // Normal backward
+             sc.scrollTo({left: (cur - 1) * w, behavior: 'smooth'});
+           }
          }
-         
-         // If next is beyond clone (shouldn't happen usually), clamp it
-         if(next >= total) next = 0;
-         
-         sc.scrollTo({left: next*w, behavior: 'smooth'});
       }
     }
   },
