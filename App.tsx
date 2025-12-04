@@ -234,7 +234,7 @@ html,body{
   .slider-container::-webkit-scrollbar{display:none}
   .slider-item{
     flex:0 0 100%;width:100%;height:100%;scroll-snap-align:start;
-    /* scroll-snap-stop:always; Removed to allow momentum/snappy scroll */
+    scroll-snap-stop:always; /* Prevent skipping slides */
     position:relative; /* 子要素の配置用 */
     display:flex;justify-content:center;align-items:center;
   }
