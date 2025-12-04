@@ -142,8 +142,11 @@ html,body{
     grid-template-rows: 40px 40px 40px;
     gap: 0;
     position: fixed;
+    top: auto; /* Reset top to prevent vertical centering */
     bottom: 30px;
+    transform: none; /* Reset transform */
     left: 50%;
+    right: auto;
     margin-left: calc(min(var(--content-w), var(--main-max-w)) / 2 + 40px);
     z-index: 1000;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
@@ -151,12 +154,6 @@ html,body{
   
   .pc-nav.cross-mode {
     /* Enables horizontal buttons */
-  }
-
-  .pc-nav-center {
-    grid-column: 2;
-    grid-row: 2;
-    background: #333;
   }
 
   .pc-nav-button {
