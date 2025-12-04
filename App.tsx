@@ -143,7 +143,8 @@ html,body{
     gap: 0; /* Compact layout */
     position: fixed;
     bottom: 10px; /* Closer to edge */
-    right: 10px; /* Closer to edge */
+    /* Position just outside content (approx 60px offset from content edge), but keep at least 10px from screen edge */
+    right: max(10px, calc((100vw - min(var(--content-w), var(--main-max-w))) / 2 - 60px));
     z-index: 100;
   }
   .pc-nav-button{
