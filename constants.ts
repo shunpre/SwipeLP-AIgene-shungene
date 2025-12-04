@@ -681,12 +681,18 @@ const SL={
       sc.addEventListener('mousedown', (e) => {
         isDown = true;
         sc.classList.add('active'); // Optional: for cursor style
+        sc.style.scrollSnapType = 'none'; // Disable snap for smooth dragging
         startX = e.pageX - sc.offsetLeft;
         scrollLeft = sc.scrollLeft;
         e.preventDefault(); // Prevent text selection
       });
-      sc.addEventListener('mouseleave', () => { isDown = false; sc.classList.remove('active'); });
-      sc.addEventListener('mouseup', () => { isDown = false; sc.classList.remove('active'); });
+      const stopDrag = () => {
+        isDown = false;
+        sc.classList.remove('active');
+        sc.style.scrollSnapType = ''; // Restore snap
+      };
+      sc.addEventListener('mouseleave', stopDrag);
+      sc.addEventListener('mouseup', stopDrag);
       sc.addEventListener('mousemove', (e) => {
         if(!isDown) return;
         e.preventDefault();
@@ -957,7 +963,49 @@ const EV={
     },{passive:false})
   },
   keys(){document.addEventListener('keydown',e=>{if(S.anim)return;if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key))NAV.go(S.pn-1,'key');if(['ArrowDown','ArrowRight',' ','PageDown'].includes(e.key))NAV.go(S.pn+1,'key')})},
-  navBtns(){document.querySelector('.prev-button')?.addEventListener('click',()=>NAV.go(S.pn-1,'nav_btn'));document.querySelector('.next-button')?.addEventListener('click',()=>NAV.go(S.pn+1,'nav_btn'))},
+  navBtns(){document.querySelector('.prev-button')?.addEventListener('click',()=>this.handleBtn(-1));document.querySelector('.next-button')?.addEventListener('click',()=>this.handleBtn(1))},
+  handleBtn(dir){
+    const p=document.querySelector('.page.active');
+    if(p){
+      const sc=p.querySelector('.slider-container');
+      if(sc){
+        const w=sc.clientWidth;
+        const cur=Math.round(sc.scrollLeft/w);
+        const max=sc.children.length-1; // Includes clone if any, but logic should handle it
+        // If we have a clone, max index is effectively infinite for loop, but let's stick to simple bounds first.
+        // Actually, if it's a loop, we can just scroll.
+        // But user said "連動させる" (linked behavior).
+        // If at end of slider, should we go to next page?
+        // Usually yes.
+        const next=cur+dir;
+        // Check if next is within bounds of the slider content
+        // Note: sc.children includes clones.
+        // Let's check scrollWidth.
+        const maxScroll = sc.scrollWidth - w;
+        const targetScroll = next * w;
+        
+        // If target is within valid scroll range (with some buffer for float errors)
+        if(targetScroll >= -5 && targetScroll <= maxScroll + 5){
+           // However, we need to know if we are "at the edge" and trying to go further.
+           // If dir is +1 and we are at maxScroll, go to next page.
+           // If dir is -1 and we are at 0, go to prev page.
+           
+           const atStart = sc.scrollLeft <= 5;
+           const atEnd = sc.scrollLeft >= maxScroll - 5;
+           
+           if(dir === -1 && atStart) {
+             NAV.go(S.pn-1,'nav_btn');
+           } else if(dir === 1 && atEnd) {
+             NAV.go(S.pn+1,'nav_btn');
+           } else {
+             sc.scrollTo({left: targetScroll, behavior: 'smooth'});
+           }
+           return;
+        }
+      }
+    }
+    NAV.go(S.pn+dir,'nav_btn');
+  },
   modals(){
     const l=document.getElementById('legalInfoModal');if(!l)return;
     document.getElementById('openLegalModal')?.addEventListener('click',e=>{l.hidden=false;setTimeout(()=>l.classList.add('active'),10);U.push({event:'legal_modal_opened',...U.getClickDetails(e,e.target)})});
