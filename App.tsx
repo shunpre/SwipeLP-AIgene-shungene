@@ -157,18 +157,17 @@ html,body{
     content: "";
     grid-column: 2;
     grid-row: 2;
-    background: #444; /* Uniform dark body */
+    background: #333; /* Darker gray */
     z-index: 0;
     display: block;
     width: 100%;
     height: 100%;
-    box-shadow: 0 0 0 1px #444; /* Cover sub-pixel gaps */
   }
 
   .pc-nav-button{
     width: 40px;
     height: 40px;
-    background: #444; /* Uniform dark body */
+    background: #333; /* Darker gray */
     color: #3b82f6; /* Blue arrows */
     border: none;
     border-radius: 0; /* Reset */
