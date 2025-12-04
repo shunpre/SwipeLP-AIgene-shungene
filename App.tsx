@@ -176,9 +176,15 @@ html,body{
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background 0.2s;
+    transition: background 0.2s, opacity 0.2s;
     z-index: 1;
     box-shadow: none;
+  }
+  
+  .pc-nav-button.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    cursor: default;
   }
   
   /* Specific Border Radii for Outer Edges */

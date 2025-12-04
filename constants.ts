@@ -801,6 +801,9 @@ const SL={
           if(i === idx) d.classList.add('active');
           else d.classList.remove('active');
         });
+        
+        // Update Nav Buttons
+        HS.updateNav();
       }, {passive: true});
     }
   }
@@ -833,6 +836,21 @@ const NAV={
     if(nav){
       if(hasSlider) nav.classList.add('cross-mode');
       else nav.classList.remove('cross-mode');
+      
+      // Up/Down Button State
+      const prevBtn = nav.querySelector('.prev-button');
+      const nextBtn = nav.querySelector('.next-button');
+      if(prevBtn){
+        if(S.pn <= 1) prevBtn.classList.add('disabled');
+        else prevBtn.classList.remove('disabled');
+      }
+      if(nextBtn){
+        if(S.pn >= S.tp) nextBtn.classList.add('disabled');
+        else nextBtn.classList.remove('disabled');
+      }
+      
+      // Horizontal Button State
+      HS.updateNav();
     }
   },
   fireEvents(n){
@@ -999,42 +1017,49 @@ const EV={
       if(sc){
          const w=sc.clientWidth;
          const cur=Math.round(sc.scrollLeft/w);
+         const total = sc.children.length;
+         
+         // Strict Check: Prevent navigation if disabled
+         if(dir === -1 && cur <= 0) return;
+         if(dir === 1 && cur >= total - 1) return;
+
          let next=cur+dir;
          
-         const total = sc.children.length; // Safer than scrollWidth/w
+         // Handle Loop seamlessly (Only if not strict linear)
+         // User requested strict left rule: "P1 start... P1 to 1.3 (Left) is not allowed"
+         // This implies NO LOOPING for left.
+         // And likely NO LOOPING for right if we want consistent "gray out" behavior.
+         // So we implement strict linear navigation here.
          
-         // Handle Loop seamlessly
-         if(dir === 1){
-           // Forward
-           if(cur >= total - 1){
-             // We are at clone (or past it). Snap to 0, then scroll to 1.
-             sc.children[0].scrollIntoView({behavior: 'auto', block: 'nearest', inline: 'start'});
-             requestAnimationFrame(()=>{
-               sc.children[1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
-             });
-           } else {
-             // Normal forward
-             sc.children[cur + 1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
-           }
-         } else {
-           // Backward
-           if(cur <= 0){
-             // We are at 0. Snap to clone, then scroll to second-to-last.
-             const cloneIdx = total - 1;
-             sc.children[cloneIdx].scrollIntoView({behavior: 'auto', block: 'nearest', inline: 'start'});
-             requestAnimationFrame(()=>{
-               sc.children[cloneIdx - 1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
-             });
-           } else {
-             // Normal backward
-             sc.children[cur - 1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
-           }
-         }
+         if(next < 0) next = 0;
+         if(next >= total) next = total - 1;
+         
+         sc.children[next].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
       }
+    }
+  },
+  updateNav(){
+    const p=document.querySelector('.page.active');
+    const sc=p?.querySelector('.slider-container');
+    const lBtn=document.querySelector('.left-button');
+    const rBtn=document.querySelector('.right-button');
+    
+    if(sc && lBtn && rBtn){
+      const w=sc.clientWidth;
+      const cur=Math.round(sc.scrollLeft/w);
+      const total=sc.children.length;
+      
+      if(cur <= 0) lBtn.classList.add('disabled');
+      else lBtn.classList.remove('disabled');
+      
+      if(cur >= total - 1) rBtn.classList.add('disabled');
+      else rBtn.classList.remove('disabled');
     }
   },
   handleBtn(dir){
     // Strict Vertical: Only change page.
+    if(dir===-1 && S.pn<=1)return;
+    if(dir===1 && S.pn>=S.tp)return;
     NAV.go(S.pn+dir,'nav_btn');
   },
   modals(){
