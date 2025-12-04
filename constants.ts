@@ -1001,36 +1001,33 @@ const EV={
          const cur=Math.round(sc.scrollLeft/w);
          let next=cur+dir;
          
-         const total = Math.round(sc.scrollWidth / w); // Includes clone
+         const total = sc.children.length; // Safer than scrollWidth/w
          
          // Handle Loop seamlessly
          if(dir === 1){
            // Forward
            if(cur >= total - 1){
              // We are at clone (or past it). Snap to 0, then scroll to 1.
-             sc.scrollTo({left: 0, behavior: 'auto'});
-             // Need a small delay or just next frame to scroll to 1?
-             // scrollTo is async-ish but sequential calls might override.
-             // Let's try immediate.
+             sc.children[0].scrollIntoView({behavior: 'auto', block: 'nearest', inline: 'start'});
              requestAnimationFrame(()=>{
-               sc.scrollTo({left: w, behavior: 'smooth'});
+               sc.children[1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
              });
            } else {
-             // Normal forward (including to clone)
-             sc.scrollTo({left: (cur + 1) * w, behavior: 'smooth'});
+             // Normal forward
+             sc.children[cur + 1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
            }
          } else {
            // Backward
            if(cur <= 0){
              // We are at 0. Snap to clone, then scroll to second-to-last.
              const cloneIdx = total - 1;
-             sc.scrollTo({left: cloneIdx * w, behavior: 'auto'});
+             sc.children[cloneIdx].scrollIntoView({behavior: 'auto', block: 'nearest', inline: 'start'});
              requestAnimationFrame(()=>{
-               sc.scrollTo({left: (cloneIdx - 1) * w, behavior: 'smooth'});
+               sc.children[cloneIdx - 1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
              });
            } else {
              // Normal backward
-             sc.scrollTo({left: (cur - 1) * w, behavior: 'smooth'});
+             sc.children[cur - 1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
            }
          }
       }
