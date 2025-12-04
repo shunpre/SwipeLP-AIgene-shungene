@@ -157,14 +157,18 @@ html,body{
     content: "";
     grid-column: 2;
     grid-row: 2;
-    background: #444; /* Lighter dark body */
+    background: #444; /* Uniform dark body */
     z-index: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 0 1px #444; /* Cover sub-pixel gaps */
   }
 
   .pc-nav-button{
     width: 40px;
     height: 40px;
-    background: #444; /* Lighter dark body */
+    background: #444; /* Uniform dark body */
     color: #3b82f6; /* Blue arrows */
     border: none;
     border-radius: 0; /* Reset */
@@ -212,12 +216,14 @@ html,body{
 
   /* Handle Opacity/Pointer-Events for Horizontal Buttons */
   .pc-nav-horizontal .pc-nav-button {
-    opacity: 0.3;
+    /* opacity: 0.3;  <-- Removed to keep background solid */
+    color: rgba(59, 130, 246, 0.3); /* Dim the arrow icon only */
     pointer-events: none;
-    transition: opacity 0.3s, background 0.2s;
+    transition: color 0.3s, background 0.2s;
   }
   .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button {
-    opacity: 1;
+    /* opacity: 1; <-- Removed */
+    color: #3b82f6; /* Restore active blue */
     pointer-events: auto;
   }
   
