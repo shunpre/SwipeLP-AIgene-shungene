@@ -719,13 +719,13 @@ const SL={
       if(clone){
         const observer = new IntersectionObserver((entries)=>{
           entries.forEach(entry=>{
-            if(entry.isIntersecting && entry.intersectionRatio >= 0.9){
+            if(entry.isIntersecting && entry.intersectionRatio >= 0.99){
               sc.style.scrollBehavior = 'auto';
               sc.scrollLeft = 0;
               requestAnimationFrame(()=>{ sc.style.scrollBehavior = ''; });
             }
           });
-        }, { root: sc, threshold: [0.9, 1.0] });
+        }, { root: sc, threshold: 1.0 });
         observer.observe(clone);
       }
     });
