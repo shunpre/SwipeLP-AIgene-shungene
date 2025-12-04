@@ -160,11 +160,11 @@ html,body{
     /* No special layout change needed, just enables horizontal buttons */
   }
 
-  /* Center Square Design */
+  /* Center Square Design: ALWAYS BLUE to form the core of the cross */
   .pc-nav-center {
     grid-column: 2;
     grid-row: 2;
-    background: #333;
+    background: #3b82f6; /* Blue */
     width: 100%;
     height: 100%;
     z-index: 0;
@@ -173,8 +173,8 @@ html,body{
   .pc-nav-button {
     width: 40px;
     height: 40px;
-    background: #333;
-    color: #3b82f6;
+    background: #3b82f6; /* Blue */
+    color: #fff;
     border: none;
     border-radius: 0;
     font-size: 24px;
@@ -182,15 +182,16 @@ html,body{
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background 0.2s, color 0.2s;
+    transition: opacity 0.2s, background 0.2s;
     z-index: 1;
     box-shadow: none;
   }
   
-  /* Disabled State: Only dim the icon, KEEP BACKGROUND SAME */
+  /* Disabled State: FADE OUT the whole button (keep it blue) */
   .pc-nav-button.disabled {
-    color: rgba(255, 255, 255, 0.1) !important; /* Very dim icon */
-    background: #333 !important; /* SAME as active/center to look like one solid shape */
+    opacity: 0.3; /* Faded blue */
+    background: #3b82f6 !important; /* Keep it blue */
+    color: #fff !important;
     pointer-events: none;
     cursor: default;
   }
@@ -206,10 +207,10 @@ html,body{
   }
   
   .pc-nav-button:hover{
-    background: #444;
+    background: #2563eb; /* Darker Blue */
   }
   .pc-nav-button:active{
-    background: #222;
+    background: #1d4ed8;
   }
   
   .pc-nav-horizontal{
@@ -226,23 +227,24 @@ html,body{
     border-radius: 0 8px 8px 0;
   }
 
-  /* Horizontal Buttons: Default Disabled (Grayed out) unless active */
+  /* Horizontal Buttons: Default Disabled (Faded Blue) */
   .pc-nav-horizontal .pc-nav-button {
-    color: rgba(255, 255, 255, 0.1);
-    background: #333;
+    opacity: 0.3;
+    background: #3b82f6;
+    color: #fff;
     pointer-events: none;
   }
   
-  /* When in cross-mode, horizontal buttons become active (unless specifically disabled by JS) */
+  /* When in cross-mode, horizontal buttons become active (Full Opacity) */
   .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button {
-    color: #3b82f6;
-    background: #333;
+    opacity: 1;
+    background: #3b82f6;
     pointer-events: auto;
   }
   /* Specific disabled override for horizontal buttons even in cross-mode */
   .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button.disabled {
-    color: rgba(255, 255, 255, 0.1) !important;
-    background: #333 !important;
+    opacity: 0.3 !important;
+    background: #3b82f6 !important;
     pointer-events: none;
   }
   
