@@ -136,6 +136,7 @@ html,body{
 }
 
 @media (min-width: 1025px){
+  .pc-nav{
     display:grid;
     grid-template-columns: 40px 40px 40px;
     grid-template-rows: 40px 40px 40px;
