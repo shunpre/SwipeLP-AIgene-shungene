@@ -137,53 +137,84 @@ html,body{
 
 @media (min-width: 1025px){
   .pc-nav{
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 40px 40px 40px;
+    grid-template-rows: 40px 40px 40px;
+    gap: 0;
     position: fixed;
     bottom: 30px;
     left: 50%;
     margin-left: calc(min(var(--content-w), var(--main-max-w)) / 2 + 40px);
     z-index: 1000;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+  }
+  
+  .pc-nav.cross-mode {
+    /* Enables horizontal buttons */
+  }
+
+  .pc-nav-center {
+    grid-column: 2;
+    grid-row: 2;
+    background: #333;
   }
 
   .pc-nav-button {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     background: #333;
     color: #3b82f6;
     border: none;
-    border-radius: 50%;
-    font-size: 28px;
+    border-radius: 0;
+    font-size: 24px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background 0.2s, color 0.2s, opacity 0.2s;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    transition: background 0.2s, color 0.2s;
   }
   
   .pc-nav-button.disabled {
-    opacity: 0.3;
+    color: rgba(255, 255, 255, 0.15);
     pointer-events: none;
-    cursor: default;
   }
   
-  .pc-nav-button:hover {
-    background: #444;
+  .pc-nav > .pc-nav-button:first-child {
+    grid-column: 2; grid-row: 1;
+    border-radius: 8px 8px 0 0;
+  }
+  .pc-nav > .pc-nav-button:last-child {
+    grid-column: 2; grid-row: 3;
+    border-radius: 0 0 8px 8px;
   }
   
-  .pc-nav-button:active {
-    background: #222;
+  .pc-nav-button:hover { background: #444; }
+  .pc-nav-button:active { background: #222; }
+  
+  .pc-nav-horizontal { display: contents; }
+  .pc-nav-horizontal .pc-nav-button:first-child { 
+    grid-column: 1; grid-row: 2;
+    border-radius: 8px 0 0 8px;
+  }
+  .pc-nav-horizontal .pc-nav-button:last-child { 
+    grid-column: 3; grid-row: 2;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .pc-nav-horizontal .pc-nav-button {
+    color: rgba(255, 255, 255, 0.15);
+    pointer-events: none;
   }
   
-  /* Rotate arrows to point up/down */
-  .pc-nav-button.prev-button {
-    transform: rotate(-90deg);
+  .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button {
+    color: #3b82f6;
+    pointer-events: auto;
   }
-  .pc-nav-button.next-button {
-    transform: rotate(90deg);
+  .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button.disabled {
+    color: rgba(255, 255, 255, 0.15);
+    pointer-events: none;
   }
+
 
   .page-image,.page-video{pointer-events:auto}
   .floating-banner[data-device=mobile]{display:none!important}
