@@ -136,7 +136,45 @@ html,body{
 }
 
 @media (min-width: 769px){
-  .pc-nav{display:flex}
+  .pc-nav{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+  }
+  .pc-nav-button{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.3s;
+  }
+  .pc-nav-button:hover{ background: rgba(0,0,0,0.8); }
+  
+  .pc-nav-horizontal{
+    display: none; /* Hidden by default */
+    gap: 40px; /* Space for the center (optional, or just gap) */
+  }
+  .pc-nav.cross-mode .pc-nav-horizontal{
+    display: flex;
+  }
+  
+  /* Adjust layout for cross mode */
+  /* Up button is first child */
+  /* Horizontal div is second child */
+  /* Down button is third child */
+  
   .page-image,.page-video{pointer-events:auto}
   .floating-banner[data-device=mobile]{display:none!important}
   .floating-banner[data-device=pc]{

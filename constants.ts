@@ -49,6 +49,10 @@ export const HTML_TEMPLATE = `<!DOCTYPE html>
 
     <div class="pc-nav">
       <button class="pc-nav-button prev-button" aria-label="前のページへ">▲</button>
+      <div class="pc-nav-horizontal">
+        <button class="pc-nav-button left-button" aria-label="左へ">◀</button>
+        <button class="pc-nav-button right-button" aria-label="右へ">▶</button>
+      </div>
       <button class="pc-nav-button next-button" aria-label="次のページへ">▼</button>
     </div>
   </div>
@@ -731,6 +735,7 @@ const SL={
          s.appendChild(v);VM.addVideoListeners(v);
       } else {
          const m=document.createElement('img');m.className='page-image';m.loading='lazy';m.decoding='async';m.alt=alt||'';m.src=src;
+         m.draggable=false; // Fix for PC drag
          s.appendChild(m);
       }
       return s;
@@ -811,6 +816,15 @@ const NAV={
     });
     document.getElementById('progressBar').style.width=\`\${(S.pn/S.tp)*100}%\`;
     VM.handle();BN.check();HS.renderForActive();
+    
+    // Cross Nav Logic
+    const activeP = document.querySelector(C.K.SEL+'.page.active');
+    const hasSlider = activeP?.querySelector('.slider-container');
+    const nav = document.querySelector('.pc-nav');
+    if(nav){
+      if(hasSlider) nav.classList.add('cross-mode');
+      else nav.classList.remove('cross-mode');
+    }
   },
   fireEvents(n){
     const a=document.querySelector('.page.active');if(!a)return;
@@ -963,7 +977,24 @@ const EV={
     },{passive:false})
   },
   keys(){document.addEventListener('keydown',e=>{if(S.anim)return;if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key))NAV.go(S.pn-1,'key');if(['ArrowDown','ArrowRight',' ','PageDown'].includes(e.key))NAV.go(S.pn+1,'key')})},
-  navBtns(){document.querySelector('.prev-button')?.addEventListener('click',()=>this.handleBtn(-1));document.querySelector('.next-button')?.addEventListener('click',()=>this.handleBtn(1))},
+  navBtns(){
+    document.querySelector('.prev-button')?.addEventListener('click',()=>this.handleBtn(-1));
+    document.querySelector('.next-button')?.addEventListener('click',()=>this.handleBtn(1));
+    document.querySelector('.left-button')?.addEventListener('click',()=>this.handleHorizontalBtn(-1));
+    document.querySelector('.right-button')?.addEventListener('click',()=>this.handleHorizontalBtn(1));
+  },
+  handleHorizontalBtn(dir){
+    const p=document.querySelector('.page.active');
+    if(p){
+      const sc=p.querySelector('.slider-container');
+      if(sc){
+         const w=sc.clientWidth;
+         const cur=Math.round(sc.scrollLeft/w);
+         const next=cur+dir;
+         sc.scrollTo({left: next*w, behavior: 'smooth'});
+      }
+    }
+  },
   handleBtn(dir){
     const p=document.querySelector('.page.active');
     if(p){
