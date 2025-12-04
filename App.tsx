@@ -150,39 +150,47 @@ html,body{
     right: auto;
     margin-left: calc(min(var(--content-w), var(--main-max-w)) / 2 + 40px);
     z-index: 1000; /* Ensure on top */
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); /* Shadow for the whole shape */
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
   }
-  /* Center Filler (Real Element) */
+  /* Up button is first child */
+  /* Horizontal div is second child */
+  /* Down button is third child */
+  
+  .pc-nav.cross-mode {
+    /* No special layout change needed, just enables horizontal buttons */
+  }
+
+  /* Center Square Design */
   .pc-nav-center {
     grid-column: 2;
     grid-row: 2;
-    background: #333; /* Darker gray */
+    background: #333;
     width: 100%;
     height: 100%;
     z-index: 0;
   }
 
-  .pc-nav-button{
+  .pc-nav-button {
     width: 40px;
     height: 40px;
-    background: #333; /* Darker gray */
-    color: #3b82f6; /* Blue arrows */
+    background: #333;
+    color: #3b82f6;
     border: none;
-    border-radius: 0; /* Reset */
+    border-radius: 0;
     font-size: 24px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background 0.2s, opacity 0.2s;
+    transition: background 0.2s, color 0.2s;
     z-index: 1;
     box-shadow: none;
   }
   
+  /* Disabled State: Visibly Grayed Out */
   .pc-nav-button.disabled {
-    /* opacity: 0.3; <-- Removed to keep background solid */
-    color: rgba(255, 255, 255, 0.2); /* Dim the arrow icon only */
-    background: #333; /* Ensure background stays solid */
+    color: #555 !important; /* Dark gray arrow */
+    background: #2a2a2a !important; /* Slightly lighter background to show it exists but is inactive */
     pointer-events: none;
     cursor: default;
   }
@@ -198,11 +206,10 @@ html,body{
   }
   
   .pc-nav-button:hover{
-    background: #333; /* Slightly lighter on hover */
-    transform: none; /* No movement, just color change */
+    background: #444;
   }
   .pc-nav-button:active{
-    background: #111; /* Darker on active */
+    background: #222;
   }
   
   .pc-nav-horizontal{
@@ -219,17 +226,24 @@ html,body{
     border-radius: 0 8px 8px 0;
   }
 
-  /* Handle Opacity/Pointer-Events for Horizontal Buttons */
+  /* Horizontal Buttons: Default Disabled (Grayed out) unless active */
   .pc-nav-horizontal .pc-nav-button {
-    /* opacity: 0.3;  <-- Removed to keep background solid */
-    color: rgba(59, 130, 246, 0.3); /* Dim the arrow icon only */
+    color: #555;
+    background: #2a2a2a;
     pointer-events: none;
-    transition: color 0.3s, background 0.2s;
   }
+  
+  /* When in cross-mode, horizontal buttons become active (unless specifically disabled by JS) */
   .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button {
-    /* opacity: 1; <-- Removed */
-    color: #3b82f6; /* Restore active blue */
+    color: #3b82f6;
+    background: #333;
     pointer-events: auto;
+  }
+  /* Specific disabled override for horizontal buttons even in cross-mode */
+  .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button.disabled {
+    color: #555 !important;
+    background: #2a2a2a !important;
+    pointer-events: none;
   }
   
   /* Adjust layout for cross mode */

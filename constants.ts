@@ -1020,18 +1020,13 @@ const EV={
          const cur=Math.round(sc.scrollLeft/w);
          const total = sc.children.length;
          
-         // Strict Check: Prevent navigation if disabled
          // Left: Block if at start (No backward loop)
          if(dir === -1 && cur <= 0) return;
-         // Right: Allow loop (Infinite forward)
-
-         let next=cur+dir;
          
-         // Handle Loop seamlessly
+         // Right: Loop if at end
          if(dir === 1){
-           // Forward
            if(cur >= total - 1){
-             // We are at clone (or past it). Snap to 0, then scroll to 1.
+             // Loop back to start
              sc.children[0].scrollIntoView({behavior: 'auto', block: 'nearest', inline: 'start'});
              requestAnimationFrame(()=>{
                sc.children[1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
@@ -1058,7 +1053,6 @@ const EV={
     if(sc && lBtn && rBtn){
       const w=sc.clientWidth;
       const cur=Math.round(sc.scrollLeft/w);
-      // const total=sc.children.length; // Not needed for right button if infinite loop
       
       // Left: Disabled at start
       if(cur <= 0) lBtn.classList.add('disabled');
