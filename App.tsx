@@ -262,6 +262,9 @@ html,body{
     -ms-overflow-style:none; /* IE/Edge */
     touch-action: pan-x; /* 縦スクロールはブラウザ標準、横はJS制御(しないが、pan-xで明示) */
     z-index: 10; /* Ensure it sits above other page elements */
+    /* Reserve space for dots (30px) + Banner Height + Safe Area */
+    padding-bottom: calc(30px + var(--banner-h-m, 0px) + var(--sa-bottom));
+    box-sizing: border-box;
   }
   .slider-container::-webkit-scrollbar{display:none}
   .slider-item{
@@ -274,7 +277,8 @@ html,body{
   /* ページネーションドット（進行表示） */
   .slider-dots {
     position: absolute;
-    bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    /* Position above banner (Banner Height + Safe Area + Gap) */
+    bottom: calc(10px + var(--banner-h-m, 0px) + var(--sa-bottom));
     left: 50%;
     transform: translateX(-50%);
     display: flex;
