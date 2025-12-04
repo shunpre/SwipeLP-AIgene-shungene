@@ -137,117 +137,54 @@ html,body{
 
 @media (min-width: 1025px){
   .pc-nav{
-    display:grid;
-    grid-template-columns: 40px 40px 40px;
-    grid-template-rows: 40px 40px 40px;
-    gap: 0;
-    background: #333; /* Solid background to fill the entire grid */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     position: fixed;
-    top: auto;
     bottom: 30px;
-    transform: none;
     left: 50%;
-    right: auto;
     margin-left: calc(min(var(--content-w), var(--main-max-w)) / 2 + 40px);
     z-index: 1000;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
-    /* Clip to cross shape */
-    clip-path: polygon(
-      33.33% 0%, 66.66% 0%,       /* Top of Up button */
-      66.66% 33.33%, 100% 33.33%, /* Right edge of Up, Top of Right */
-      100% 66.66%, 66.66% 66.66%, /* Bottom of Right, Right edge of Down */
-      66.66% 100%, 33.33% 100%,   /* Bottom of Down button */
-      33.33% 66.66%, 0% 66.66%,   /* Left edge of Down, Bottom of Left */
-      0% 33.33%, 33.33% 33.33%    /* Top of Left, Left edge of Up */
-    );
   }
-  
-  .pc-nav.cross-mode {
-    /* No special layout change needed, just enables horizontal buttons */
-  }
-
 
   .pc-nav-button {
-    width: 40px;
-    height: 40px;
-    background: #333; /* Unified Dark Gray */
-    color: #3b82f6; /* Blue Icon */
+    width: 50px;
+    height: 50px;
+    background: #333;
+    color: #3b82f6;
     border: none;
-    border-radius: 0;
-    font-size: 24px;
+    border-radius: 50%;
+    font-size: 28px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background 0.2s, color 0.2s;
-    z-index: 1;
-    box-shadow: none;
+    transition: background 0.2s, color 0.2s, opacity 0.2s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
   }
   
-  /* Disabled State: Dim the icon, KEEP BACKGROUND #333 */
   .pc-nav-button.disabled {
-    color: rgba(255, 255, 255, 0.1) !important; /* Very dim icon */
-    background: #333 !important; /* Keep background consistent */
+    opacity: 0.3;
     pointer-events: none;
     cursor: default;
   }
   
-  /* Specific Border Radii for Outer Edges */
-  .pc-nav > .pc-nav-button:first-child { /* Up */
-    grid-column: 2; grid-row: 1;
-    border-radius: 8px 8px 0 0;
-  }
-  .pc-nav > .pc-nav-button:last-child { /* Down */
-    grid-column: 2; grid-row: 3;
-    border-radius: 0 0 8px 8px;
+  .pc-nav-button:hover {
+    background: #444;
   }
   
-  .pc-nav-button:hover{
-    background: #444; /* Lighter gray on hover */
-  }
-  .pc-nav-button:active{
-    background: #222; /* Darker gray on active */
+  .pc-nav-button:active {
+    background: #222;
   }
   
-  .pc-nav-horizontal{
-    display: contents;
+  /* Rotate arrows to point up/down */
+  .pc-nav-button.prev-button {
+    transform: rotate(-90deg);
   }
-  /* Left Button */
-  .pc-nav-horizontal .pc-nav-button:first-child { 
-    grid-column: 1; grid-row: 2;
-    border-radius: 8px 0 0 8px;
-  }
-  /* Right Button */
-  .pc-nav-horizontal .pc-nav-button:last-child { 
-    grid-column: 3; grid-row: 2;
-    border-radius: 0 8px 8px 0;
+  .pc-nav-button.next-button {
+    transform: rotate(90deg);
   }
 
-  /* Horizontal Buttons: Default Disabled (Dim Icon, #333 Background) */
-  .pc-nav-horizontal .pc-nav-button {
-    color: rgba(255, 255, 255, 0.1);
-    background: #333;
-    pointer-events: none;
-  }
-  
-  /* When in cross-mode, horizontal buttons become active */
-  .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button {
-    color: #3b82f6;
-    background: #333;
-    pointer-events: auto;
-  }
-  /* Specific disabled override for horizontal buttons even in cross-mode */
-  .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button.disabled {
-    color: rgba(255, 255, 255, 0.1) !important;
-    background: #333 !important;
-    pointer-events: none;
-  }
-  
-  /* Adjust layout for cross mode */
-  /* Up button is first child */
-  /* Horizontal div is second child */
-  /* Down button is third child */
-  
   .page-image,.page-video{pointer-events:auto}
   .floating-banner[data-device=mobile]{display:none!important}
   .floating-banner[data-device=pc]{
