@@ -163,12 +163,16 @@ html,body{
   .pc-nav-button:hover{ background: rgba(0,0,0,0.8); }
   
   .pc-nav-horizontal{
-    display: none; /* Hidden by default */
+    display: flex; /* Always visible */
     gap: 35px; /* Space for the center (empty) */
     margin: -5px 0; /* Tighten vertical spacing */
+    opacity: 0.3; /* Default disabled state */
+    pointer-events: none;
+    transition: opacity 0.3s;
   }
   .pc-nav.cross-mode .pc-nav-horizontal{
-    display: flex;
+    opacity: 1; /* Active state */
+    pointer-events: auto;
   }
   
   /* Adjust layout for cross mode */

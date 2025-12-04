@@ -1002,15 +1002,23 @@ const EV={
          let next=cur+dir;
          
          // Loop Logic
-         // Note: sc.children includes clones.
-         // But we just need to know the logical slide count.
-         // Or we can just use scrollWidth/clientWidth.
-         const total = Math.round(sc.scrollWidth / w);
+         const total = Math.round(sc.scrollWidth / w); // Includes clone
          
-         if(next < 0) next = total - 1; // Loop to end
-         if(next >= total) next = 0;    // Loop to start
+         // Forward Loop: If we go past last real slide (to clone), let it scroll.
+         // The IntersectionObserver in SL.bind will detect the clone and jump to 0.
+         // So we DON'T reset to 0 here.
          
-         // Strict Horizontal: Only scroll slider, do not change page.
+         // Backward Loop: If we go before 0
+         if(next < 0) {
+           // We don't have a start-clone, so we can't smooth scroll backward past 0.
+           // We have to jump to the end.
+           // Last real slide is total - 2 (since total-1 is clone).
+           next = total - 2;
+         }
+         
+         // If next is beyond clone (shouldn't happen usually), clamp it
+         if(next >= total) next = 0;
+         
          sc.scrollTo({left: next*w, behavior: 'smooth'});
       }
     }
