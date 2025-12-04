@@ -135,36 +135,37 @@ html,body{
   .html-content{max-width:100%;padding:0 15px 20px}
 }
 
-@media (min-width: 769px){
   .pc-nav{
     display:flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 0; /* Compact layout */
     position: fixed;
     bottom: 20px;
     right: 20px;
     z-index: 100;
   }
   .pc-nav-button{
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    background: rgba(0,0,0,0.6);
+    background: #333; /* Solid dark grey (reverted) */
     color: #fff;
     border: none;
-    font-size: 18px;
+    font-size: 24px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: background 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
   }
-  .pc-nav-button:hover{ background: rgba(0,0,0,0.8); }
+  .pc-nav-button:hover{ background: #555; }
   
   .pc-nav-horizontal{
     display: none; /* Hidden by default */
-    gap: 40px; /* Space for the center (optional, or just gap) */
+    gap: 50px; /* Space for the center (empty) */
+    margin: -5px 0; /* Tighten vertical spacing */
   }
   .pc-nav.cross-mode .pc-nav-horizontal{
     display: flex;

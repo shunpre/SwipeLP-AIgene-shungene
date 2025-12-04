@@ -991,50 +991,13 @@ const EV={
          const w=sc.clientWidth;
          const cur=Math.round(sc.scrollLeft/w);
          const next=cur+dir;
+         // Strict Horizontal: Only scroll slider, do not change page.
          sc.scrollTo({left: next*w, behavior: 'smooth'});
       }
     }
   },
   handleBtn(dir){
-    const p=document.querySelector('.page.active');
-    if(p){
-      const sc=p.querySelector('.slider-container');
-      if(sc){
-        const w=sc.clientWidth;
-        const cur=Math.round(sc.scrollLeft/w);
-        const max=sc.children.length-1; // Includes clone if any, but logic should handle it
-        // If we have a clone, max index is effectively infinite for loop, but let's stick to simple bounds first.
-        // Actually, if it's a loop, we can just scroll.
-        // But user said "連動させる" (linked behavior).
-        // If at end of slider, should we go to next page?
-        // Usually yes.
-        const next=cur+dir;
-        // Check if next is within bounds of the slider content
-        // Note: sc.children includes clones.
-        // Let's check scrollWidth.
-        const maxScroll = sc.scrollWidth - w;
-        const targetScroll = next * w;
-        
-        // If target is within valid scroll range (with some buffer for float errors)
-        if(targetScroll >= -5 && targetScroll <= maxScroll + 5){
-           // However, we need to know if we are "at the edge" and trying to go further.
-           // If dir is +1 and we are at maxScroll, go to next page.
-           // If dir is -1 and we are at 0, go to prev page.
-           
-           const atStart = sc.scrollLeft <= 5;
-           const atEnd = sc.scrollLeft >= maxScroll - 5;
-           
-           if(dir === -1 && atStart) {
-             NAV.go(S.pn-1,'nav_btn');
-           } else if(dir === 1 && atEnd) {
-             NAV.go(S.pn+1,'nav_btn');
-           } else {
-             sc.scrollTo({left: targetScroll, behavior: 'smooth'});
-           }
-           return;
-        }
-      }
-    }
+    // Strict Vertical: Only change page.
     NAV.go(S.pn+dir,'nav_btn');
   },
   modals(){
