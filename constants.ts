@@ -758,26 +758,21 @@ const SL={
     // Extra Slides
     hSlides.forEach(src => sc.appendChild(mkSlide(src, '')));
 
-    // Loop: Clone First Slide
+    // Loop: Clone First Slide REMOVED for Strict Linear Nav
+    /*
     if(sc.children.length > 1){
       const first = sc.children[0].cloneNode(true);
       first.classList.add('clone-first');
-      const img = first.querySelector('img');
-      if(img) img.loading = 'eager';
-      // If video, we might need to re-attach listeners or mute it?
-      // CloneNode copies attributes but not event listeners.
-      // VM.addVideoListeners needs to be called on cloned video.
-      const v = first.querySelector('video');
-      if(v) { v.muted=true; VM.addVideoListeners(v); }
+      // ...
       sc.appendChild(first);
     }
+    */
     p.appendChild(sc);
 
     // Pagination Dots
     if(hSlides.length > 0){
       const dots = document.createElement('div'); dots.className = 'slider-dots';
       // Total slides = Main(1) + Extra(hSlides.length). 
-      // Note: We don't count the clone for dots.
       const total = 1 + hSlides.length;
       for(let i=0; i<total; i++){
         const dot = document.createElement('div');
@@ -791,10 +786,7 @@ const SL={
         const w = sc.clientWidth;
         if(!w) return;
         // Calculate index based on scroll position
-        // Round to nearest integer to find current slide
         let idx = Math.round(sc.scrollLeft / w);
-        // Handle Loop (Clone)
-        if(idx >= total) idx = 0; 
         
         // Update dots
         Array.from(dots.children).forEach((d, i) => {
@@ -805,6 +797,9 @@ const SL={
         // Update Nav Buttons
         HS.updateNav();
       }, {passive: true});
+      
+      // Initial Nav Update
+      setTimeout(() => HS.updateNav(), 100);
     }
   }
 };
