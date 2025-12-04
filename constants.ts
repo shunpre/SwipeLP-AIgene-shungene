@@ -670,12 +670,21 @@ const SL={
       if(sc.dataset.slBound)return;sc.dataset.slBound='1';
       
       // Wheel support
+      // Wheel support (Vertical Wheel -> Horizontal Scroll)
       sc.addEventListener('wheel',e=>{
         if(e.ctrlKey)return;
-        const max=sc.scrollWidth-sc.clientWidth;if(max<=1)return;
-        const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(!delta)return;
-        const before=sc.scrollLeft;sc.scrollLeft+=delta;
-        if(sc.scrollLeft!==before){e.preventDefault();e.stopPropagation()}
+        // If vertical scroll (deltaY), treat as horizontal
+        const delta = e.deltaY || e.deltaX;
+        if(!delta) return;
+        
+        const before = sc.scrollLeft;
+        sc.scrollLeft += delta;
+        
+        // If we scrolled, prevent default (page scroll)
+        if(sc.scrollLeft !== before){
+          e.preventDefault();
+          e.stopPropagation();
+        }
       },{passive:false});
 
       // PC Mouse Drag Support
@@ -990,7 +999,17 @@ const EV={
       if(sc){
          const w=sc.clientWidth;
          const cur=Math.round(sc.scrollLeft/w);
-         const next=cur+dir;
+         let next=cur+dir;
+         
+         // Loop Logic
+         // Note: sc.children includes clones.
+         // But we just need to know the logical slide count.
+         // Or we can just use scrollWidth/clientWidth.
+         const total = Math.round(sc.scrollWidth / w);
+         
+         if(next < 0) next = total - 1; // Loop to end
+         if(next >= total) next = 0;    // Loop to start
+         
          // Strict Horizontal: Only scroll slider, do not change page.
          sc.scrollTo({left: next*w, behavior: 'smooth'});
       }

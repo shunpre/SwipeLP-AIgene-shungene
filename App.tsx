@@ -141,18 +141,18 @@ html,body{
     align-items: center;
     gap: 0; /* Compact layout */
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 10px; /* Closer to edge */
+    right: 10px; /* Closer to edge */
     z-index: 100;
   }
   .pc-nav-button{
-    width: 50px;
-    height: 50px;
+    width: 35px; /* 30% smaller (50px * 0.7 = 35px) */
+    height: 35px;
     border-radius: 50%;
-    background: #333; /* Solid dark grey (reverted) */
+    background: rgba(0,0,0,0.6); /* Original semi-transparent */
     color: #fff;
     border: none;
-    font-size: 24px;
+    font-size: 18px; /* Smaller arrow */
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -160,11 +160,11 @@ html,body{
     transition: background 0.3s;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
   }
-  .pc-nav-button:hover{ background: #555; }
+  .pc-nav-button:hover{ background: rgba(0,0,0,0.8); }
   
   .pc-nav-horizontal{
     display: none; /* Hidden by default */
-    gap: 50px; /* Space for the center (empty) */
+    gap: 35px; /* Space for the center (empty) */
     margin: -5px 0; /* Tighten vertical spacing */
   }
   .pc-nav.cross-mode .pc-nav-horizontal{
