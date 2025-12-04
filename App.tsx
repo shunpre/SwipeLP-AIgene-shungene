@@ -142,7 +142,9 @@ html,body{
     grid-template-rows: 40px 40px 40px;
     gap: 0; /* Connected */
     position: fixed;
+    top: auto; /* Reset top */
     bottom: 10px; /* Force lower */
+    transform: none; /* Reset transform */
     /* Position relative to center: Move to right edge of content + 40px gap */
     left: 50%;
     right: auto;
@@ -155,14 +157,14 @@ html,body{
     content: "";
     grid-column: 2;
     grid-row: 2;
-    background: #222; /* Dark body */
+    background: #444; /* Lighter dark body */
     z-index: 0;
   }
 
   .pc-nav-button{
     width: 40px;
     height: 40px;
-    background: #222; /* Dark body */
+    background: #444; /* Lighter dark body */
     color: #3b82f6; /* Blue arrows */
     border: none;
     border-radius: 0; /* Reset */
