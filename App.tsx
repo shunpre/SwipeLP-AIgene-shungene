@@ -137,33 +137,45 @@ html,body{
 
 @media (min-width: 1025px){
   .pc-nav{
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px; /* Tight spacing for cross-key */
+    display:grid;
+    grid-template-columns: 40px 40px 40px;
+    grid-template-rows: 40px 40px 40px;
+    gap: 4px;
     position: fixed;
-    bottom: 30px; /* Move lower as requested */
+    bottom: 20px; /* Lower position */
     /* Position relative to center: Move to right edge of content + 40px gap */
     left: 50%;
     right: auto;
     margin-left: calc(min(var(--content-w), var(--main-max-w)) / 2 + 40px);
     z-index: 100;
+    /* Controller Base Styling */
+    background: rgba(0,0,0,0.05);
+    backdrop-filter: blur(4px);
+    border-radius: 24px; /* Rounded rect base */
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
   .pc-nav-button{
-    width: 40px; /* Slightly larger */
+    width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #2563eb); /* Cool gradient */
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: #fff;
-    border: 1px solid rgba(255,255,255,0.2); /* Subtle border */
+    border: 1px solid rgba(255,255,255,0.2);
     font-size: 20px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3); /* Depth */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
   }
+  /* Grid Positioning */
+  /* Up Button (First child of .pc-nav) */
+  .pc-nav > .pc-nav-button:first-child { grid-column: 2; grid-row: 1; }
+  /* Down Button (Last child of .pc-nav) */
+  .pc-nav > .pc-nav-button:last-child { grid-column: 2; grid-row: 3; }
+  
   .pc-nav-button:hover{
     background: linear-gradient(135deg, #60a5fa, #3b82f6);
     box-shadow: 0 6px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
@@ -175,15 +187,22 @@ html,body{
   }
   
   .pc-nav-horizontal{
-    display: flex; /* Always visible */
-    gap: 45px; /* Space for the center (imaginary) */
-    margin: -22px 0; /* Overlap to align with center of cross */
-    opacity: 0.3; /* Default disabled state */
-    pointer-events: none;
-    transition: opacity 0.3s;
+    display: contents; /* Flatten for Grid */
+    /* pointer-events logic handled on buttons or parent? */
+    /* Since display:contents removes the box, we need to handle opacity on the buttons themselves */
   }
-  .pc-nav.cross-mode .pc-nav-horizontal{
-    opacity: 1; /* Active state */
+  /* Target Left/Right buttons inside .pc-nav-horizontal */
+  .pc-nav-horizontal .pc-nav-button:first-child { grid-column: 1; grid-row: 2; }
+  .pc-nav-horizontal .pc-nav-button:last-child { grid-column: 3; grid-row: 2; }
+
+  /* Handle Opacity/Pointer-Events for Horizontal Buttons */
+  .pc-nav-horizontal .pc-nav-button {
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.2s, box-shadow 0.2s;
+  }
+  .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button {
+    opacity: 1;
     pointer-events: auto;
   }
   
