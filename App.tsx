@@ -140,9 +140,9 @@ html,body{
     display:flex;
     flex-direction: column;
     align-items: center;
-    gap: 0; /* Compact layout */
+    gap: 5px; /* Tight spacing for cross-key */
     position: fixed;
-    bottom: 10px; /* Closer to edge */
+    bottom: 30px; /* Move lower as requested */
     /* Position relative to center: Move to right edge of content + 40px gap */
     left: 50%;
     right: auto;
@@ -150,26 +150,34 @@ html,body{
     z-index: 100;
   }
   .pc-nav-button{
-    width: 35px; /* 30% smaller (50px * 0.7 = 35px) */
-    height: 35px;
+    width: 40px; /* Slightly larger */
+    height: 40px;
     border-radius: 50%;
-    background: rgba(59, 130, 246, 0.9); /* Progress bar blue */
+    background: linear-gradient(135deg, #3b82f6, #2563eb); /* Cool gradient */
     color: #fff;
-    border: none;
-    font-size: 18px; /* Smaller arrow */
+    border: 1px solid rgba(255,255,255,0.2); /* Subtle border */
+    font-size: 20px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background 0.3s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3); /* Depth */
   }
-  .pc-nav-button:hover{ background: rgba(37, 99, 235, 1); }
+  .pc-nav-button:hover{
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+    transform: translateY(-1px);
+  }
+  .pc-nav-button:active{
+    transform: scale(0.95) translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
   
   .pc-nav-horizontal{
     display: flex; /* Always visible */
-    gap: 35px; /* Space for the center (empty) */
-    margin: -5px 0; /* Tighten vertical spacing */
+    gap: 45px; /* Space for the center (imaginary) */
+    margin: -22px 0; /* Overlap to align with center of cross */
     opacity: 0.3; /* Default disabled state */
     pointer-events: none;
     transition: opacity 0.3s;
