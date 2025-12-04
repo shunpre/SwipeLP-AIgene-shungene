@@ -160,21 +160,23 @@ html,body{
     /* No special layout change needed, just enables horizontal buttons */
   }
 
-  /* Center Square Design: ALWAYS BLUE to form the core of the cross */
+  /* Center Square Design: Solid Dark Gray with slight overlap to prevent gaps */
   .pc-nav-center {
     grid-column: 2;
     grid-row: 2;
-    background: #3b82f6; /* Blue */
+    background: #333;
     width: 100%;
     height: 100%;
     z-index: 0;
+    /* Scale up slightly to overlap with buttons and close any sub-pixel gaps */
+    transform: scale(1.02);
   }
 
   .pc-nav-button {
     width: 40px;
     height: 40px;
-    background: #3b82f6; /* Blue */
-    color: #fff;
+    background: #333; /* Unified Dark Gray */
+    color: #3b82f6; /* Blue Icon */
     border: none;
     border-radius: 0;
     font-size: 24px;
@@ -182,16 +184,15 @@ html,body{
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.2s, background 0.2s;
+    transition: background 0.2s, color 0.2s;
     z-index: 1;
     box-shadow: none;
   }
   
-  /* Disabled State: FADE OUT the whole button (keep it blue) */
+  /* Disabled State: Dim the icon, KEEP BACKGROUND #333 */
   .pc-nav-button.disabled {
-    opacity: 0.3; /* Faded blue */
-    background: #3b82f6 !important; /* Keep it blue */
-    color: #fff !important;
+    color: rgba(255, 255, 255, 0.1) !important; /* Very dim icon */
+    background: #333 !important; /* Keep background consistent */
     pointer-events: none;
     cursor: default;
   }
@@ -207,10 +208,10 @@ html,body{
   }
   
   .pc-nav-button:hover{
-    background: #2563eb; /* Darker Blue */
+    background: #444; /* Lighter gray on hover */
   }
   .pc-nav-button:active{
-    background: #1d4ed8;
+    background: #222; /* Darker gray on active */
   }
   
   .pc-nav-horizontal{
@@ -227,24 +228,23 @@ html,body{
     border-radius: 0 8px 8px 0;
   }
 
-  /* Horizontal Buttons: Default Disabled (Faded Blue) */
+  /* Horizontal Buttons: Default Disabled (Dim Icon, #333 Background) */
   .pc-nav-horizontal .pc-nav-button {
-    opacity: 0.3;
-    background: #3b82f6;
-    color: #fff;
+    color: rgba(255, 255, 255, 0.1);
+    background: #333;
     pointer-events: none;
   }
   
-  /* When in cross-mode, horizontal buttons become active (Full Opacity) */
+  /* When in cross-mode, horizontal buttons become active */
   .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button {
-    opacity: 1;
-    background: #3b82f6;
+    color: #3b82f6;
+    background: #333;
     pointer-events: auto;
   }
   /* Specific disabled override for horizontal buttons even in cross-mode */
   .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button.disabled {
-    opacity: 0.3 !important;
-    background: #3b82f6 !important;
+    color: rgba(255, 255, 255, 0.1) !important;
+    background: #333 !important;
     pointer-events: none;
   }
   
