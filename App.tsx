@@ -262,8 +262,8 @@ html,body{
     -ms-overflow-style:none; /* IE/Edge */
     touch-action: pan-x; /* 縦スクロールはブラウザ標準、横はJS制御(しないが、pan-xで明示) */
     z-index: 10; /* Ensure it sits above other page elements */
-    /* Reserve space for dots (30px) + Banner Height + Safe Area */
-    padding-bottom: calc(30px + var(--banner-h-m, 0px) + var(--sa-bottom));
+    /* Reserve space for dots (30px) only. Banner/Safe Area are handled by wrapper padding. */
+    padding-bottom: 30px;
     box-sizing: border-box;
   }
   .slider-container::-webkit-scrollbar{display:none}
@@ -277,8 +277,8 @@ html,body{
   /* ページネーションドット（進行表示） */
   .slider-dots {
     position: absolute;
-    /* Position above banner (Banner Height + Safe Area + Gap) */
-    bottom: calc(10px + var(--banner-h-m, 0px) + var(--sa-bottom));
+    /* Position at bottom of container (which ends above banner) */
+    bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
