@@ -182,7 +182,9 @@ html,body{
   }
   
   .pc-nav-button.disabled {
-    opacity: 0.3;
+    /* opacity: 0.3; <-- Removed to keep background solid */
+    color: rgba(255, 255, 255, 0.2); /* Dim the arrow icon only */
+    background: #333; /* Ensure background stays solid */
     pointer-events: none;
     cursor: default;
   }
