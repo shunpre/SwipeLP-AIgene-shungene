@@ -801,11 +801,11 @@ const SL={
         });
         
         // Update Nav Buttons
-        HS.updateNav();
+        EV.updateNav();
       }, {passive: true});
       
       // Initial Nav Update
-      setTimeout(() => HS.updateNav(), 100);
+      setTimeout(() => EV.updateNav(), 100);
     }
   }
 };
@@ -851,7 +851,7 @@ const NAV={
       }
       
       // Horizontal Button State
-      HS.updateNav();
+      EV.updateNav();
     }
   },
   fireEvents(n){
