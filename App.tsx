@@ -135,6 +135,7 @@ html,body{
   .html-content{max-width:100%;padding:0 15px 20px}
 }
 
+@media (min-width: 1025px){
   .pc-nav{
     display:flex;
     flex-direction: column;
@@ -182,6 +183,13 @@ html,body{
   
   .page-image,.page-video{pointer-events:auto}
   .floating-banner[data-device=mobile]{display:none!important}
+  .floating-banner[data-device=pc]{
+    left:50%;bottom:var(--sa-bottom);transform:translateX(-50%);
+    width:70vw; /* ビューポート基準の暫定幅（広い画面で緩やかに拡縮） */
+    max-width:calc(min(var(--content-w), var(--main-max-w)) * var(--banner-pc-scale)); /* コンテンツの72% */
+    min-width:var(--banner-min-w);
+  }
+}
   .floating-banner[data-device=pc]{
     left:50%;bottom:var(--sa-bottom);transform:translateX(-50%);
     width:70vw; /* ビューポート基準の暫定幅（広い画面で緩やかに拡縮） */
