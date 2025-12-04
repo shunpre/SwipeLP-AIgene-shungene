@@ -49,7 +49,6 @@ export const HTML_TEMPLATE = `<!DOCTYPE html>
 
     <div class="pc-nav">
       <button class="pc-nav-button prev-button" aria-label="前のページへ">▲</button>
-      <div class="pc-nav-center"></div>
       <div class="pc-nav-horizontal">
         <button class="pc-nav-button left-button" aria-label="左へ">◀</button>
         <button class="pc-nav-button right-button" aria-label="右へ">▶</button>

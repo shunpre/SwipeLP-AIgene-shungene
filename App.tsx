@@ -140,37 +140,32 @@ html,body{
     display:grid;
     grid-template-columns: 40px 40px 40px;
     grid-template-rows: 40px 40px 40px;
-    gap: 0; /* Connected */
+    gap: 0;
+    background: #333; /* Solid background to fill the entire grid */
     position: fixed;
-    top: auto; /* Reset top */
-    bottom: 30px; /* Add margin */
-    transform: none; /* Reset transform */
-    /* Position relative to center: Move to right edge of content + 40px gap */
+    top: auto;
+    bottom: 30px;
+    transform: none;
     left: 50%;
     right: auto;
     margin-left: calc(min(var(--content-w), var(--main-max-w)) / 2 + 40px);
-    z-index: 1000; /* Ensure on top */
+    z-index: 1000;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    /* Clip to cross shape */
+    clip-path: polygon(
+      33.33% 0%, 66.66% 0%,       /* Top of Up button */
+      66.66% 33.33%, 100% 33.33%, /* Right edge of Up, Top of Right */
+      100% 66.66%, 66.66% 66.66%, /* Bottom of Right, Right edge of Down */
+      66.66% 100%, 33.33% 100%,   /* Bottom of Down button */
+      33.33% 66.66%, 0% 66.66%,   /* Left edge of Down, Bottom of Left */
+      0% 33.33%, 33.33% 33.33%    /* Top of Left, Left edge of Up */
+    );
   }
-  /* Up button is first child */
-  /* Horizontal div is second child */
-  /* Down button is third child */
   
   .pc-nav.cross-mode {
     /* No special layout change needed, just enables horizontal buttons */
   }
 
-  /* Center Square Design: Solid Dark Gray with slight overlap to prevent gaps */
-  .pc-nav-center {
-    grid-column: 2;
-    grid-row: 2;
-    background: #333;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    /* Scale up slightly to overlap with buttons and close any sub-pixel gaps */
-    transform: scale(1.02);
-  }
 
   .pc-nav-button {
     width: 40px;
