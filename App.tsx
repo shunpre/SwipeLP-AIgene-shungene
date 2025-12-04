@@ -136,70 +136,82 @@ html,body{
 }
 
 @media (min-width: 1025px){
-  .pc-nav{
     display:grid;
     grid-template-columns: 40px 40px 40px;
     grid-template-rows: 40px 40px 40px;
-    gap: 4px;
+    gap: 0; /* Connected */
     position: fixed;
-    bottom: 20px; /* Lower position */
+    bottom: 10px; /* Force lower */
     /* Position relative to center: Move to right edge of content + 40px gap */
     left: 50%;
     right: auto;
     margin-left: calc(min(var(--content-w), var(--main-max-w)) / 2 + 40px);
-    z-index: 100;
-    /* Controller Base Styling */
-    background: rgba(0,0,0,0.05);
-    backdrop-filter: blur(4px);
-    border-radius: 24px; /* Rounded rect base */
-    padding: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 1000; /* Ensure on top */
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); /* Shadow for the whole shape */
   }
+  /* Center Filler */
+  .pc-nav::before {
+    content: "";
+    grid-column: 2;
+    grid-row: 2;
+    background: #222; /* Dark body */
+    z-index: 0;
+  }
+
   .pc-nav-button{
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.2);
-    font-size: 20px;
+    background: #222; /* Dark body */
+    color: #3b82f6; /* Blue arrows */
+    border: none;
+    border-radius: 0; /* Reset */
+    font-size: 24px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
+    transition: background 0.2s;
+    z-index: 1;
+    box-shadow: none;
   }
-  /* Grid Positioning */
-  /* Up Button (First child of .pc-nav) */
-  .pc-nav > .pc-nav-button:first-child { grid-column: 2; grid-row: 1; }
-  /* Down Button (Last child of .pc-nav) */
-  .pc-nav > .pc-nav-button:last-child { grid-column: 2; grid-row: 3; }
+  
+  /* Specific Border Radii for Outer Edges */
+  .pc-nav > .pc-nav-button:first-child { /* Up */
+    grid-column: 2; grid-row: 1;
+    border-radius: 8px 8px 0 0;
+  }
+  .pc-nav > .pc-nav-button:last-child { /* Down */
+    grid-column: 2; grid-row: 3;
+    border-radius: 0 0 8px 8px;
+  }
   
   .pc-nav-button:hover{
-    background: linear-gradient(135deg, #60a5fa, #3b82f6);
-    box-shadow: 0 6px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
-    transform: translateY(-1px);
+    background: #333; /* Slightly lighter on hover */
+    transform: none; /* No movement, just color change */
   }
   .pc-nav-button:active{
-    transform: scale(0.95) translateY(0);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+    background: #111; /* Darker on active */
   }
   
   .pc-nav-horizontal{
-    display: contents; /* Flatten for Grid */
-    /* pointer-events logic handled on buttons or parent? */
-    /* Since display:contents removes the box, we need to handle opacity on the buttons themselves */
+    display: contents;
   }
-  /* Target Left/Right buttons inside .pc-nav-horizontal */
-  .pc-nav-horizontal .pc-nav-button:first-child { grid-column: 1; grid-row: 2; }
-  .pc-nav-horizontal .pc-nav-button:last-child { grid-column: 3; grid-row: 2; }
+  /* Left Button */
+  .pc-nav-horizontal .pc-nav-button:first-child { 
+    grid-column: 1; grid-row: 2;
+    border-radius: 8px 0 0 8px;
+  }
+  /* Right Button */
+  .pc-nav-horizontal .pc-nav-button:last-child { 
+    grid-column: 3; grid-row: 2;
+    border-radius: 0 8px 8px 0;
+  }
 
   /* Handle Opacity/Pointer-Events for Horizontal Buttons */
   .pc-nav-horizontal .pc-nav-button {
     opacity: 0.3;
     pointer-events: none;
-    transition: opacity 0.3s, transform 0.2s, box-shadow 0.2s;
+    transition: opacity 0.3s, background 0.2s;
   }
   .pc-nav.cross-mode .pc-nav-horizontal .pc-nav-button {
     opacity: 1;
