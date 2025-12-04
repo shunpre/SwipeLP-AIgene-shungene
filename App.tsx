@@ -143,7 +143,7 @@ html,body{
     gap: 0; /* Connected */
     position: fixed;
     top: auto; /* Reset top */
-    bottom: 10px; /* Force lower */
+    bottom: 30px; /* Add margin */
     transform: none; /* Reset transform */
     /* Position relative to center: Move to right edge of content + 40px gap */
     left: 50%;
