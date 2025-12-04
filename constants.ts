@@ -952,7 +952,7 @@ const EV={
         // If we just locked, NO preventDefault. Let browser handle pan-x.
         // if(d==='slider_lock' && e.cancelable) e.preventDefault();
       }
-    },{passive:false});
+    },{passive:true});
     c.addEventListener('touchend',e=>{
       if(S.anim||sY===null)return;const cY=e.changedTouches[0].clientY;const cX=e.changedTouches[0].clientX;const dY=sY-cY;const dX=sX-cX;sY=null;sX=null;
       if(d==='v'||d==='none'){
