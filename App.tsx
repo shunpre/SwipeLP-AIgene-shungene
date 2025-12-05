@@ -727,6 +727,7 @@ const ExtraFeatures: React.FC<{
   addHorizontalSlide: () => void;
   removeHorizontalSlide: (index: number) => void;
   mode: LpMode;
+  errors?: Partial<Record<keyof InternalData, string>>;
 }> = ({
   data,
   handleDataChange,
@@ -735,27 +736,11 @@ const ExtraFeatures: React.FC<{
   handleVideoInsertionChange, handleVideoInsertionBlur, addVideoInsertion, removeVideoInsertion,
   handleIframeInsertionChange, handleIframeInsertionBlur, addIframeInsertion, removeIframeInsertion,
   handleHorizontalSlideChange, handleHorizontalSlideBlur, addHorizontalSlide, removeHorizontalSlide,
-  mode
+  mode,
+  errors
 }) => (
     <div className="space-y-6">
-      {mode === LpMode.FULL_CUSTOM && (
-        <>
-          <RadioToggle label="横スワイプコンテンツ" options={[{ label: 'しない', value: false }, { label: 'する', value: true }]} value={data.feature_horizontal_slides} onChange={v => handleDataChange('feature_horizontal_slides', v)}>
-            <p className="text-sm text-slate-600 mb-2">特定のページ内に横スワイプで閲覧できる画像を追加します。</p>
-            {data.horizontal_slides.map((item, index) => (
-              <div key={item.id} className="p-4 border border-slate-200 rounded-lg space-y-3 relative bg-slate-50/50 mb-4">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-semibold text-slate-700">スライドグループ {index + 1}</h4>
-                  {data.horizontal_slides.length > 1 && <button onClick={() => removeHorizontalSlide(index)} className="text-slate-400 hover:text-red-600 p-1 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>}
-                </div>
-                <TextInput label="対象ページ番号" placeholder="例: 2" value={item.targetPage} onChange={e => handleHorizontalSlideChange(index, 'targetPage', e.target.value)} onBlur={handleHorizontalSlideBlur(index, 'targetPage')} required />
-                <TextareaInput label="スライド画像URL (1行に1つ)" placeholder="https://...\nhttps://..." value={item.slides} onChange={e => handleHorizontalSlideChange(index, 'slides', e.target.value)} onBlur={handleHorizontalSlideBlur(index, 'slides')} rows={4} required />
-              </div>
-            ))}
-            <AddItemButton onClick={addHorizontalSlide} text="スライドグループを追加" />
-          </RadioToggle>
-        </>
-      )}
+
 
       <RadioToggle label="HTMLの挿入" options={[{ label: 'しない', value: false }, { label: 'する', value: true }]} value={data.feature_html_insert} onChange={v => handleDataChange('feature_html_insert', v)}>
         {data.html_insertions.map((item, index) => (
@@ -829,6 +814,7 @@ const ExtraFeatures: React.FC<{
               <CustomRadio name="fb_link_type" value="shun_form" label="瞬フォーム" checked={data.floating_banner_link_type === 'shun_form'} onChange={e => handleDataChange('floating_banner_link_type', e.target.value as any)} />
               <CustomRadio name="fb_link_type" value="other" label="その他" checked={data.floating_banner_link_type === 'other'} onChange={e => handleDataChange('floating_banner_link_type', e.target.value as any)} />
             </div>
+            {errors?.floating_banner_link_type && <p className="mt-1 text-xs text-red-500">{errors.floating_banner_link_type}</p>}
           </div>
 
           {data.floating_banner_link_type === 'shun_form' && (
@@ -887,7 +873,19 @@ const App: React.FC = () => {
   };
 
   const handleDataChange = <K extends keyof InternalData>(key: K, value: InternalData[K]) => {
-    setData(prev => ({ ...prev, [key]: value }));
+    setData(prev => {
+      const newData = { ...prev, [key]: value };
+
+      // Automation: CTA Floating Banner -> Enable Floating Banner feature
+      if (key === 'cta_link_type' && value === 'floating_banner') {
+        newData.feature_floating_banner = true;
+        if (mode === LpMode.FULL_CUSTOM) {
+          newData.has_extra_features = true;
+        }
+      }
+
+      return newData;
+    });
     if (errors[key]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -1099,6 +1097,11 @@ const App: React.FC = () => {
       }
     }
 
+    // 4. Floating Banner validation
+    if (data.feature_floating_banner && data.floating_banner_link_type === 'none') {
+      newErrors.floating_banner_link_type = 'リンク先タイプを選択してください。';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -1267,7 +1270,7 @@ const App: React.FC = () => {
         <div className="w-full max-w-4xl grid md:grid-cols-3 gap-6">
           <ModeCard title="1. シンプル版" description="画像+CTA構成のみ" onClick={() => setMode(LpMode.SIMPLE)} />
           <ModeCard title="2. 高機能版" description="動画、カスタムHTML、離脱防止ポップアップ、フローティングバナーの追加が可能" onClick={() => setMode(LpMode.ADVANCED)} />
-          <ModeCard title="3. フルカスタム版" description="高機能版+ABテストを含む全機能" onClick={() => {
+          <ModeCard title="3. フルカスタム版" description="高機能版+横スワイプ、AB テストを含む全機能" onClick={() => {
             setMode(LpMode.FULL_CUSTOM);
             handleDataChange('has_ab_test', true);
           }} />
@@ -1391,6 +1394,28 @@ const App: React.FC = () => {
           </div>
         </div>
 
+        {
+          mode === LpMode.FULL_CUSTOM && (
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+              <h2 className="text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3 mb-4">2.5 横スワイプコンテンツ</h2>
+              <RadioToggle label="横スワイプコンテンツ" options={[{ label: 'しない', value: false }, { label: 'する', value: true }]} value={data.feature_horizontal_slides} onChange={v => handleDataChange('feature_horizontal_slides', v)}>
+                <p className="text-sm text-slate-600 mb-2">特定のページ内に横スワイプで閲覧できる画像を追加します。</p>
+                {data.horizontal_slides.map((item, index) => (
+                  <div key={item.id} className="p-4 border border-slate-200 rounded-lg space-y-3 relative bg-slate-50/50 mb-4">
+                    <div className="flex justify-between items-center">
+                      <h4 className="text-sm font-semibold text-slate-700">スライドグループ {index + 1}</h4>
+                      {data.horizontal_slides.length > 1 && <button onClick={() => removeHorizontalSlide(index)} className="text-slate-400 hover:text-red-600 p-1 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>}
+                    </div>
+                    <TextInput label="対象ページ番号" placeholder="例: 2" value={item.targetPage} onChange={e => handleHorizontalSlideChange(index, 'targetPage', e.target.value)} onBlur={handleHorizontalSlideBlur(index, 'targetPage')} required />
+                    <TextareaInput label="スライド画像URL (1行に1つ)" placeholder="https://...\nhttps://..." value={item.slides} onChange={e => handleHorizontalSlideChange(index, 'slides', e.target.value)} onBlur={handleHorizontalSlideBlur(index, 'slides')} rows={4} required />
+                  </div>
+                ))}
+                <AddItemButton onClick={addHorizontalSlide} text="スライドグループを追加" />
+              </RadioToggle>
+            </div>
+          )
+        }
+
         {/* Section 3: CTA */}
         <div ref={renderRef('cta_link_type')} className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 space-y-4">
           <h2 className="text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3">3. CTA（コール・トゥ・アクション）</h2>
@@ -1440,155 +1465,165 @@ const App: React.FC = () => {
         </div>
 
         {/* Section 5: Advanced features */}
-        {isAdvanced && (
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-            <h2 className="text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3 mb-4">5. 追加機能</h2>
-            <HintBox title="コンテンツ挿入位置のケーススタディ">
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-slate-800">ケース1: ファーストビューを動画や特別な画像にしたい</h4>
-                  <p>例:挿入位置に「<code>0.5</code>」と入力し、動画や特別な画像URLを指定します。これにより、全ページの先頭にコンテンツが配置され、元々の1ページ目(<code>01.jpg</code>)は2ページ目になります。</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-slate-800">ケース2: 特定の画像ペアの間にカスタムHTMLを挿入したい</h4>
-                  <p>例えば、<code>03.jpg</code>と<code>04.jpg</code>の間に挿入するには、位置を「<code>3.5</code>」と指定します。</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-slate-800">ケース3:特定の画像ペアの間に複数コンテンツを挿入したい</h4>
-                  <p>例えば、<code>03.jpg</code>と<code>04.jpg</code>の間に動画を2つ挿入するには、位置を「<code>3.5</code>」と「<code>3.6</code>」指定して動画を追加していきます。</p>
-                  <p>動画とiframeを挿入したい場合は、位置を「<code>3.5</code>」と指定して動画を追加、位置を「<code>3.6</code>」と指定してiframeを追加します。</p>
-                </div>
-                <p className="pt-3 mt-3 border-t border-blue-200">
-                  <strong>重要:</strong> 挿入したコンテンツは、2. ページの設定「総枚数」にはカウントしないでください。コンテンツを追加した場合、「総枚数」に間違いがないかご確認ください。
-                </p>
-              </div>
-            </HintBox>
-            <ExtraFeatures
-              data={data}
-              handleDataChange={handleDataChange}
-              handleDataBlur={handleDataBlur}
-              handleHtmlInsertionChange={handleHtmlInsertionChange}
-              handleHtmlInsertionBlur={handleHtmlInsertionBlur}
-              addHtmlInsertion={addHtmlInsertion}
-              removeHtmlInsertion={removeHtmlInsertion}
-              handleVideoInsertionChange={handleVideoInsertionChange}
-              handleVideoInsertionBlur={handleVideoInsertionBlur}
-              addVideoInsertion={addVideoInsertion}
-              removeVideoInsertion={removeVideoInsertion}
-              handleIframeInsertionChange={handleIframeInsertionChange}
-              handleIframeInsertionBlur={handleIframeInsertionBlur}
-              addIframeInsertion={addIframeInsertion}
-              removeIframeInsertion={removeIframeInsertion}
-              handleHorizontalSlideChange={handleHorizontalSlideChange}
-              handleHorizontalSlideBlur={handleHorizontalSlideBlur}
-              addHorizontalSlide={addHorizontalSlide}
-              removeHorizontalSlide={removeHorizontalSlide}
-              mode={mode}
-            />
-          </div>
-        )}
-        {isFull && (
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3">5. 追加機能</h2>
-              </div>
-              <div className="flex items-center space-x-4 mt-4 sm:mt-0">
-                <CustomRadio name="has_extra_features" value="false" checked={!data.has_extra_features} onChange={() => handleDataChange('has_extra_features', false)} label="しない" />
-                <CustomRadio name="has_extra_features" value="true" checked={data.has_extra_features} onChange={() => handleDataChange('has_extra_features', true)} label="する" />
-              </div>
-            </div>
-            {data.has_extra_features && (
-              <div className="mt-6 pt-6 border-t border-slate-200/80">
-                <HintBox title="コンテンツ挿入位置のケーススタディ">
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-semibold text-slate-800">ケース1: ファーストビューを動画や特別な画像にしたい</h4>
-                      <p>例:挿入位置に「<code>0.5</code>」と入力し、動画や特別な画像URLを指定します。これにより、全ページの先頭にコンテンツが配置され、元々の1ページ目(<code>01.jpg</code>)は2ページ目になります。</p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-slate-800">ケース2: 特定の画像ペアの間にカスタムHTMLを挿入したい</h4>
-                      <p>例えば、<code>03.jpg</code>と<code>04.jpg</code>の間に挿入するには、位置を「<code>3.5</code>」と指定します。</p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-slate-800">ケース3:特定の画像ペアの間に複数コンテンツを挿入したい</h4>
-                      <p>例えば、<code>03.jpg</code>と<code>04.jpg</code>の間に動画を2つ挿入するには、位置を「<code>3.5</code>」と「<code>3.6</code>」指定して動画を追加していきます。</p>
-                      <p>動画とiframeを挿入したい場合は、位置を「<code>3.5</code>」と指定して動画を追加、位置を「<code>3.6</code>」と指定してiframeを追加します。</p>
-                    </div>
-                    <p className="pt-3 mt-3 border-t border-blue-200">
-                      <strong>重要:</strong> 挿入したコンテンツは、2. ページの設定「総枚数」にはカウントしないでください。コンテンツを追加した場合、「総枚数」に間違いがないかご確認ください。
-                    </p>
+        {
+          isAdvanced && (
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+              <h2 className="text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3 mb-4">5. 追加機能</h2>
+              <HintBox title="コンテンツ挿入位置のケーススタディ">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-slate-800">ケース1: ファーストビューを動画や特別な画像にしたい</h4>
+                    <p>例:挿入位置に「<code>0.5</code>」と入力し、動画や特別な画像URLを指定します。これにより、全ページの先頭にコンテンツが配置され、元々の1ページ目(<code>01.jpg</code>)は2ページ目になります。</p>
                   </div>
-                </HintBox>
-                <ExtraFeatures
-                  data={data}
-                  handleDataChange={handleDataChange}
-                  handleDataBlur={handleDataBlur}
-                  handleHtmlInsertionChange={handleHtmlInsertionChange}
-                  handleHtmlInsertionBlur={handleHtmlInsertionBlur}
-                  addHtmlInsertion={addHtmlInsertion}
-                  removeHtmlInsertion={removeHtmlInsertion}
-                  handleVideoInsertionChange={handleVideoInsertionChange}
-                  handleVideoInsertionBlur={handleVideoInsertionBlur}
-                  addVideoInsertion={addVideoInsertion}
-                  removeVideoInsertion={removeVideoInsertion}
-                  handleIframeInsertionChange={handleIframeInsertionChange}
-                  handleIframeInsertionBlur={handleIframeInsertionBlur}
-                  addIframeInsertion={addIframeInsertion}
-                  removeIframeInsertion={removeIframeInsertion}
-                  handleHorizontalSlideChange={handleHorizontalSlideChange}
-                  handleHorizontalSlideBlur={handleHorizontalSlideBlur}
-                  addHorizontalSlide={addHorizontalSlide}
-                  removeHorizontalSlide={removeHorizontalSlide}
-                  mode={mode}
-                />
+                  <div>
+                    <h4 className="font-semibold text-slate-800">ケース2: 特定の画像ペアの間にカスタムHTMLを挿入したい</h4>
+                    <p>例えば、<code>03.jpg</code>と<code>04.jpg</code>の間に挿入するには、位置を「<code>3.5</code>」と指定します。</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-slate-800">ケース3:特定の画像ペアの間に複数コンテンツを挿入したい</h4>
+                    <p>例えば、<code>03.jpg</code>と<code>04.jpg</code>の間に動画を2つ挿入するには、位置を「<code>3.5</code>」と「<code>3.6</code>」指定して動画を追加していきます。</p>
+                    <p>動画とiframeを挿入したい場合は、位置を「<code>3.5</code>」と指定して動画を追加、位置を「<code>3.6</code>」と指定してiframeを追加します。</p>
+                  </div>
+                  <p className="pt-3 mt-3 border-t border-blue-200">
+                    <strong>重要:</strong> 挿入したコンテンツは、2. ページの設定「総枚数」にはカウントしないでください。コンテンツを追加した場合、「総枚数」に間違いがないかご確認ください。
+                  </p>
+                </div>
+              </HintBox>
+              <ExtraFeatures
+                data={data}
+                handleDataChange={handleDataChange}
+                handleDataBlur={handleDataBlur}
+                handleHtmlInsertionChange={handleHtmlInsertionChange}
+                handleHtmlInsertionBlur={handleHtmlInsertionBlur}
+                addHtmlInsertion={addHtmlInsertion}
+                removeHtmlInsertion={removeHtmlInsertion}
+                handleVideoInsertionChange={handleVideoInsertionChange}
+                handleVideoInsertionBlur={handleVideoInsertionBlur}
+                addVideoInsertion={addVideoInsertion}
+                removeVideoInsertion={removeVideoInsertion}
+                handleIframeInsertionChange={handleIframeInsertionChange}
+                handleIframeInsertionBlur={handleIframeInsertionBlur}
+                addIframeInsertion={addIframeInsertion}
+                removeIframeInsertion={removeIframeInsertion}
+                handleHorizontalSlideChange={handleHorizontalSlideChange}
+                handleHorizontalSlideBlur={handleHorizontalSlideBlur}
+                addHorizontalSlide={addHorizontalSlide}
+                removeHorizontalSlide={removeHorizontalSlide}
+                mode={mode}
+                errors={errors}
+              />
+            </div>
+          )
+        }
+        {
+          isFull && (
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3">5. 追加機能</h2>
+                </div>
+                <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+                  <CustomRadio name="has_extra_features" value="false" checked={!data.has_extra_features} onChange={() => handleDataChange('has_extra_features', false)} label="しない" />
+                  <CustomRadio name="has_extra_features" value="true" checked={data.has_extra_features} onChange={() => handleDataChange('has_extra_features', true)} label="する" />
+                </div>
               </div>
-            )}
-          </div>
-        )}
+              {data.has_extra_features && (
+                <div className="mt-6 pt-6 border-t border-slate-200/80">
+                  <HintBox title="コンテンツ挿入位置のケーススタディ">
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="font-semibold text-slate-800">ケース1: ファーストビューを動画や特別な画像にしたい</h4>
+                        <p>例:挿入位置に「<code>0.5</code>」と入力し、動画や特別な画像URLを指定します。これにより、全ページの先頭にコンテンツが配置され、元々の1ページ目(<code>01.jpg</code>)は2ページ目になります。</p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-slate-800">ケース2: 特定の画像ペアの間にカスタムHTMLを挿入したい</h4>
+                        <p>例えば、<code>03.jpg</code>と<code>04.jpg</code>の間に挿入するには、位置を「<code>3.5</code>」と指定します。</p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-slate-800">ケース3:特定の画像ペアの間に複数コンテンツを挿入したい</h4>
+                        <p>例えば、<code>03.jpg</code>と<code>04.jpg</code>の間に動画を2つ挿入するには、位置を「<code>3.5</code>」と「<code>3.6</code>」指定して動画を追加していきます。</p>
+                        <p>動画とiframeを挿入したい場合は、位置を「<code>3.5</code>」と指定して動画を追加、位置を「<code>3.6</code>」と指定してiframeを追加します。</p>
+                      </div>
+                      <p className="pt-3 mt-3 border-t border-blue-200">
+                        <strong>重要:</strong> 挿入したコンテンツは、2. ページの設定「総枚数」にはカウントしないでください。コンテンツを追加した場合、「総枚数」に間違いがないかご確認ください。
+                      </p>
+                    </div>
+                  </HintBox>
+                  <ExtraFeatures
+                    data={data}
+                    handleDataChange={handleDataChange}
+                    handleDataBlur={handleDataBlur}
+                    handleHtmlInsertionChange={handleHtmlInsertionChange}
+                    handleHtmlInsertionBlur={handleHtmlInsertionBlur}
+                    addHtmlInsertion={addHtmlInsertion}
+                    removeHtmlInsertion={removeHtmlInsertion}
+                    handleVideoInsertionChange={handleVideoInsertionChange}
+                    handleVideoInsertionBlur={handleVideoInsertionBlur}
+                    addVideoInsertion={addVideoInsertion}
+                    removeVideoInsertion={removeVideoInsertion}
+                    handleIframeInsertionChange={handleIframeInsertionChange}
+                    handleIframeInsertionBlur={handleIframeInsertionBlur}
+                    addIframeInsertion={addIframeInsertion}
+                    removeIframeInsertion={removeIframeInsertion}
+                    handleHorizontalSlideChange={handleHorizontalSlideChange}
+                    handleHorizontalSlideBlur={handleHorizontalSlideBlur}
+                    addHorizontalSlide={addHorizontalSlide}
+                    removeHorizontalSlide={removeHorizontalSlide}
+                    mode={mode}
+                    errors={errors}
+                  />
+                </div>
+              )}
+            </div>
+          )
+        }
 
-        {(isAdvanced || isFull) && contentOrderPreview.length > 0 && (
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-            <h2 className="text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3 mb-4">コンテンツの表示順序</h2>
-            <p className="text-sm text-slate-500 mb-4">設定された画像・動画と、挿入されたHTML・動画などを合わせた最終的なページの表示順です。</p>
-            <ol className="list-decimal list-inside space-y-2 text-slate-700 bg-slate-50 p-4 rounded-md">
-              {contentOrderPreview.map((item, index) => (
-                <li key={index} className="text-sm">
-                  <span className="inline-block bg-slate-200 text-slate-700 text-xs font-semibold mr-2 px-2 py-0.5 rounded-full">{item.type}</span>
-                  {item.description}
-                </li>
-              ))}
-            </ol>
-          </div>
-        )}
+        {
+          (isAdvanced || isFull) && contentOrderPreview.length > 0 && (
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+              <h2 className="text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3 mb-4">コンテンツの表示順序</h2>
+              <p className="text-sm text-slate-500 mb-4">設定された画像・動画と、挿入されたHTML・動画などを合わせた最終的なページの表示順です。</p>
+              <ol className="list-decimal list-inside space-y-2 text-slate-700 bg-slate-50 p-4 rounded-md">
+                {contentOrderPreview.map((item, index) => (
+                  <li key={index} className="text-sm">
+                    <span className="inline-block bg-slate-200 text-slate-700 text-xs font-semibold mr-2 px-2 py-0.5 rounded-full">{item.type}</span>
+                    {item.description}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )
+        }
 
         {/* Section 6: AB Test */}
-        {isFull && (
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3">6. ABテスト</h2>
+        {
+          isFull && (
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3">6. ABテスト</h2>
+                </div>
+                <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+                  <CustomRadio name="has_ab_test" value="false" checked={!data.has_ab_test} onChange={() => handleDataChange('has_ab_test', false)} label="しない" />
+                  <CustomRadio name="has_ab_test" value="true" checked={data.has_ab_test} onChange={() => handleDataChange('has_ab_test', true)} label="する" />
+                </div>
               </div>
-              <div className="flex items-center space-x-4 mt-4 sm:mt-0">
-                <CustomRadio name="has_ab_test" value="false" checked={!data.has_ab_test} onChange={() => handleDataChange('has_ab_test', false)} label="しない" />
-                <CustomRadio name="has_ab_test" value="true" checked={data.has_ab_test} onChange={() => handleDataChange('has_ab_test', true)} label="する" />
-              </div>
+              {data.has_ab_test && (
+                <div className="mt-6 pt-6 border-t border-slate-200/80">
+                  <AbTestEditor
+                    data={data}
+                    handleDataChange={handleDataChange}
+                    handleDataBlur={handleDataBlur}
+                    handleAbTestPageChange={handleAbTestPageChange}
+                    handleAbTestPageBlur={handleAbTestPageBlur}
+                    addAbTestPage={addAbTestPage}
+                    removeAbTestPage={removeAbTestPage}
+                  />
+                </div>
+              )}
             </div>
-            {data.has_ab_test && (
-              <div className="mt-6 pt-6 border-t border-slate-200/80">
-                <AbTestEditor
-                  data={data}
-                  handleDataChange={handleDataChange}
-                  handleDataBlur={handleDataBlur}
-                  handleAbTestPageChange={handleAbTestPageChange}
-                  handleAbTestPageBlur={handleAbTestPageBlur}
-                  addAbTestPage={addAbTestPage}
-                  removeAbTestPage={removeAbTestPage}
-                />
-              </div>
-            )}
-          </div>
-        )}
+          )
+        }
 
         <RadioToggle
           label="SEO・SNS設定"
@@ -1633,7 +1668,7 @@ const App: React.FC = () => {
             ファイル生成
           </button>
         </div>
-      </main>
+      </main >
 
       {generated && (
         <footer id="generation-result" className="mt-12">
@@ -1645,32 +1680,34 @@ const App: React.FC = () => {
         </footer>
       )}
 
-      {isTrialModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          aria-labelledby="trial-modal-title"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8 max-w-md w-full mx-4 text-center">
-            <h2 id="trial-modal-title" className="text-xl font-bold text-slate-800">お試しいただきありがとうございます</h2>
-            <p className="mt-4 text-slate-600">
-              こちらは機能をお試しいただくためのデモ版です。<br />
-              詳しくは11月14日（金）のセミナーにご参加ください。
-            </p>
-            <div className="mt-6 sm:mt-8">
-              <button
-                type="button"
-                onClick={() => setIsTrialModalOpen(false)}
-                className="w-full inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-              >
-                閉じる
-              </button>
+      {
+        isTrialModalOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            aria-labelledby="trial-modal-title"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8 max-w-md w-full mx-4 text-center">
+              <h2 id="trial-modal-title" className="text-xl font-bold text-slate-800">お試しいただきありがとうございます</h2>
+              <p className="mt-4 text-slate-600">
+                こちらは機能をお試しいただくためのデモ版です。<br />
+                詳しくは11月14日（金）のセミナーにご参加ください。
+              </p>
+              <div className="mt-6 sm:mt-8">
+                <button
+                  type="button"
+                  onClick={() => setIsTrialModalOpen(false)}
+                  className="w-full inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+                >
+                  閉じる
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 
