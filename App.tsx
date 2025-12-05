@@ -1575,6 +1575,7 @@ const App: React.FC = () => {
                     removeHorizontalSlide={removeHorizontalSlide}
                     mode={mode}
                     errors={errors}
+                    renderRef={renderRef}
                   />
                 </div>
               )}
