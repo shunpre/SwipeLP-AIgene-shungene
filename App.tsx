@@ -728,6 +728,7 @@ const ExtraFeatures: React.FC<{
   removeHorizontalSlide: (index: number) => void;
   mode: LpMode;
   errors?: Partial<Record<keyof InternalData, string>>;
+  renderRef: (key: keyof InternalData) => (el: HTMLDivElement | null) => void;
 }> = ({
   data,
   handleDataChange,
@@ -737,7 +738,8 @@ const ExtraFeatures: React.FC<{
   handleIframeInsertionChange, handleIframeInsertionBlur, addIframeInsertion, removeIframeInsertion,
   handleHorizontalSlideChange, handleHorizontalSlideBlur, addHorizontalSlide, removeHorizontalSlide,
   mode,
-  errors
+  errors,
+  renderRef
 }) => (
     <div className="space-y-6">
 
@@ -808,8 +810,8 @@ const ExtraFeatures: React.FC<{
         <div className="space-y-4">
           <TextInput label="バナー画像URL" type="url" placeholder="https://example.com/banner.png" value={data.floating_banner_image_url} onChange={e => handleDataChange('floating_banner_image_url', e.target.value)} onBlur={handleDataBlur('floating_banner_image_url')} required />
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">リンク先タイプ</label>
+          <div ref={renderRef('floating_banner_link_type')}>
+            <label className="block text-sm font-medium text-slate-700 mb-2">リンク先タイプ <span className="text-red-500 ml-1">必須</span></label>
             <div className="flex items-center space-x-4">
               <CustomRadio name="fb_link_type" value="shun_form" label="瞬フォーム" checked={data.floating_banner_link_type === 'shun_form'} onChange={e => handleDataChange('floating_banner_link_type', e.target.value as any)} />
               <CustomRadio name="fb_link_type" value="other" label="その他" checked={data.floating_banner_link_type === 'other'} onChange={e => handleDataChange('floating_banner_link_type', e.target.value as any)} />
@@ -1103,7 +1105,7 @@ const App: React.FC = () => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
   const prepareDataForGenerator = () => {
@@ -1121,8 +1123,9 @@ const App: React.FC = () => {
   };
 
   const handleGenerate = () => {
-    if (!validate()) {
-      const firstErrorKey = Object.keys(errors)[0] as keyof InternalData;
+    const currentErrors = validate();
+    if (Object.keys(currentErrors).length > 0) {
+      const firstErrorKey = Object.keys(currentErrors)[0] as keyof InternalData;
       if (firstErrorKey) {
         const element = fieldRefs.current[firstErrorKey];
         if (element) {
@@ -1511,6 +1514,7 @@ const App: React.FC = () => {
                 removeHorizontalSlide={removeHorizontalSlide}
                 mode={mode}
                 errors={errors}
+                renderRef={renderRef}
               />
             </div>
           )
