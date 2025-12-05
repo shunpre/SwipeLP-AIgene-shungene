@@ -1469,7 +1469,7 @@ const App: React.FC = () => {
 
         {/* Section 5: Advanced features */}
         {
-          (isAdvanced || isFull) && (
+          isAdvanced && (
             <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
               <h2 className="text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3 mb-4">5. 追加機能</h2>
               <HintBox title="コンテンツ挿入位置のケーススタディ">
